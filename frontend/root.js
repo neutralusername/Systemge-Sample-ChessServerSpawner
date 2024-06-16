@@ -1,3 +1,5 @@
+import { home } from "./home.js";
+
 export class root extends React.Component {
     constructor(props) {
         super(props);
@@ -6,6 +8,7 @@ export class root extends React.Component {
                 idInput : "",
                 errorMessage : "",
                 errorTimeout : null,
+                content: "home",
                 WS_CONNECTION: new WebSocket("ws://localhost:8443/ws"),
                 constructMessage: (topic, payload) => {
                     return JSON.stringify({
@@ -61,6 +64,14 @@ export class root extends React.Component {
     }
 
     render() {
+        let content = null; 
+        switch (this.state.content) {
+            case "home":
+                content = React.createElement(home, this.state);
+                break;
+            default:
+                break;
+        }
         return React.createElement(
             "div", {
                 id: "root",
@@ -83,51 +94,7 @@ export class root extends React.Component {
                     alignItems: "center",
                 },
             }, this.state.errorMessage || "\u00a0"),
-            "your id: " + this.state.id,
-            React.createElement("div", {
-                    style: {
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    },
-                },
-                "enter another id or share your id"
-            ),
-            React.createElement("div", {
-                    style: {
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    },
-                },
-                React.createElement("input", {
-                    type: "text",
-                    id: "input",
-                    value: this.state.idInput,
-                    onChange: (e) => {
-                        this.state.setStateRoot({
-                            idInput: e.target.value,
-                        });
-                    },
-                    style: {
-                        width: "100px",
-                        height: "20px",
-                    },
-                }),
-                React.createElement("button", {
-                    onClick: () => {
-                        this.state.WS_CONNECTION.send(
-                           this.state.constructMessage("startGame", this.state.idInput)
-                        );
-                    },
-                    style: {
-                        width: "100px",
-                        height: "20px",
-                    },
-                }, "start game")
-            ),
+            content
         );
     }
 }
