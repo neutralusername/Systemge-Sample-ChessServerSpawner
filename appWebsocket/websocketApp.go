@@ -7,15 +7,23 @@ import (
 	"Systemge/Utilities"
 	"Systemge/WebsocketClient"
 	"SystemgeSampleChessServer/topics"
+	"strings"
+	"sync"
 )
 
 type WebsocketApp struct {
 	client *Client.Client
+
+	clientGameIds map[string]string
+	mutex         sync.Mutex
 }
 
 func New(messageBrokerClient *Client.Client, args []string) (Application.WebsocketApplication, error) {
 	return &WebsocketApp{
 		client: messageBrokerClient,
+
+		clientGameIds: make(map[string]string),
+		mutex:         sync.Mutex{},
 	}, nil
 }
 
@@ -45,23 +53,96 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 }
 
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
-	return map[string]Application.WebsocketMessageHandler{}
+	return map[string]Application.WebsocketMessageHandler{
+		"startGame": func(connection *WebsocketClient.Client, message *Message.Message) error {
+			gameId, err := func() (string, error) {
+				app.mutex.Lock()
+				defer app.mutex.Unlock()
+				if !app.client.GetWebsocketServer().ClientExists(message.GetPayload()) {
+					return "", Utilities.NewError("opponentId does not exist", nil)
+				}
+				if app.clientGameIds[connection.GetId()] != "" {
+					return "", Utilities.NewError("You are already in a game", nil)
+				}
+				if app.clientGameIds[message.GetPayload()] != "" {
+					return "", Utilities.NewError("Opponent is already in a game", nil)
+				}
+				gameId := app.client.GetName() + " " + message.GetPayload()
+				app.clientGameIds[connection.GetId()] = gameId
+				app.clientGameIds[message.GetPayload()] = gameId
+				return gameId, nil
+			}()
+			if err != nil {
+				return Utilities.NewError("Error starting game", err)
+			}
+			_, err = app.client.SyncMessage(topics.NEW, connection.GetId(), gameId)
+			if err != nil {
+				func() {
+					app.mutex.Lock()
+					defer app.mutex.Unlock()
+					delete(app.clientGameIds, connection.GetId())
+					delete(app.clientGameIds, message.GetPayload())
+				}()
+				return Utilities.NewError("Error sending new message", err)
+			}
+			return nil
+		},
+		"move": func(connection *WebsocketClient.Client, message *Message.Message) error {
+			app.mutex.Lock()
+			gameId := app.clientGameIds[connection.GetId()]
+			app.mutex.Unlock()
+			if gameId == "" {
+				return Utilities.NewError("You are not in a game", nil)
+			}
+			err := app.client.AsyncMessage(gameId, connection.GetId(), message.GetPayload())
+			if err != nil {
+				return Utilities.NewError("Error sending move message", err)
+			}
+			return nil
+		},
+		"endGame": func(connection *WebsocketClient.Client, message *Message.Message) error {
+			app.mutex.Lock()
+			gameId := app.clientGameIds[connection.GetId()]
+			app.mutex.Unlock()
+			if gameId == "" {
+				return Utilities.NewError("You are not in a game", nil)
+			}
+			_, err := app.client.SyncMessage(topics.END, connection.GetId(), gameId)
+			if err != nil {
+				return Utilities.NewError("Error sending end message", err)
+			}
+			app.mutex.Lock()
+			ids := strings.Split(gameId, " ")
+			delete(app.clientGameIds, ids[0])
+			delete(app.clientGameIds, ids[1])
+			app.mutex.Unlock()
+			return nil
+		},
+	}
 }
 
 func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
-	_, err := app.client.SyncMessage(topics.NEW, connection.GetId(), connection.GetId())
+	err := connection.Send(Message.NewAsync("connected", app.client.GetName(), connection.GetId()).Serialize())
 	if err != nil {
-		panic(Utilities.NewError("Error sending sync message", err))
-	}
-	err = app.client.AsyncMessage(connection.GetId(), connection.GetId(), "e4e2")
-	if err != nil {
-		panic(Utilities.NewError("Error sending async message", err))
+		connection.Disconnect()
+		app.client.GetLogger().Log(Utilities.NewError("Error sending connected message", err).Error())
 	}
 }
 
 func (app *WebsocketApp) OnDisconnectHandler(connection *WebsocketClient.Client) {
-	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), connection.GetId())
-	if err != nil {
-		panic(err)
+	app.mutex.Lock()
+	gameId := app.clientGameIds[connection.GetId()]
+	app.mutex.Unlock()
+	if gameId == "" {
+		return
 	}
+	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
+	if err != nil {
+		app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
+	}
+	app.mutex.Lock()
+	ids := strings.Split(gameId, " ")
+	delete(app.clientGameIds, ids[0])
+	delete(app.clientGameIds, ids[1])
+	app.mutex.Unlock()
 }

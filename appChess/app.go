@@ -38,7 +38,7 @@ func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHan
 	return map[string]Application.AsyncMessageHandler{
 		app.id: func(message *Message.Message) error {
 			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
-			err := app.client.AsyncMessage(topics.PROPAGATE_MOVE, app.client.GetName(), "e2e4")
+			err := app.client.AsyncMessage(topics.PROPAGATE_MOVE, app.client.GetName(), message.GetPayload())
 			if err != nil {
 				panic(err)
 			}

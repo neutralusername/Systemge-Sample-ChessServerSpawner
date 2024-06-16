@@ -16,8 +16,8 @@ export class root extends React.Component {
             (this.state.WS_CONNECTION.onmessage = (event) => {
                 let message = JSON.parse(event.data);
                 switch (message.topic) {
-                    case "pong":
-                        console.log("PONG")
+                    case "connected":
+                        console.log(message)
                         break;
                     case "error":
                         let errorMessage = message.payload.split("->").reverse()[0]
