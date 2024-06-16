@@ -91,18 +91,20 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
 		"startGame": func(client *WebsocketClient.Client, message *Message.Message) error {
-			app.mutex.Lock()
-			defer app.mutex.Unlock()
 			whiteId := client.GetId()
 			blackId := message.GetPayload()
-			if app.clientGameIds[whiteId] != "" {
-				return Utilities.NewError("You are already in a game", nil)
-			}
-			if app.clientGameIds[blackId] != "" {
-				return Utilities.NewError("Opponent is already in a game", nil)
-			}
+			app.mutex.Lock()
+			whiteGameId := app.clientGameIds[whiteId]
+			blackGameId := app.clientGameIds[blackId]
+			app.mutex.Unlock()
 			if blackId == whiteId {
 				return Utilities.NewError("You cannot play against yourself", nil)
+			}
+			if whiteGameId != "" {
+				return Utilities.NewError("You are already in a game", nil)
+			}
+			if blackGameId != "" {
+				return Utilities.NewError("Opponent is already in a game", nil)
 			}
 			_, err := app.client.SyncMessage(topics.NEW, app.client.GetName(), whiteId+"-"+blackId)
 			if err != nil {
