@@ -1,3 +1,4 @@
+import { game } from "./game.js";
 import { home } from "./home.js";
 
 export class root extends React.Component {
@@ -39,6 +40,16 @@ export class root extends React.Component {
                             id: message.payload,
                         });
                         break;
+                    case "propagate_gameStart":
+                        this.state.setStateRoot({
+                            content: "game",
+                        });
+                        break;
+                    case "endGame":
+                        this.state.setStateRoot({
+                            content: "home",
+                        });
+                        break;
                     case "error":
                         let errorMessage = message.payload.split("->").reverse()[0]
                         this.state.setErrorMessage(errorMessage);
@@ -68,6 +79,9 @@ export class root extends React.Component {
         switch (this.state.content) {
             case "home":
                 content = React.createElement(home, this.state);
+                break;
+            case "game":
+                content = React.createElement(game, this.state);
                 break;
             default:
                 break;
