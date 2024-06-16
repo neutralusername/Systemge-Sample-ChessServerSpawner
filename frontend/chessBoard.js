@@ -19,7 +19,7 @@ export class chessBoard extends React.Component {
                             alignItems : "center",
                             justifyContent : "center",
                             color : "red",
-                            outline : this.props.selected && this.props.selected.row === i && this.props.selected.col === j ? "2px solid blue" : "none",
+                            outline : this.props.selected && this.props.selected.row === i && this.props.selected.col === j ? "5px solid #7CB9E8" : "none",
                         },
                         onClick : () => {
                             if (this.props.selected === null) {
