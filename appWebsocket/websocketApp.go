@@ -56,16 +56,20 @@ func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncM
 				}
 				return Utilities.NewError("Error adding \""+ids[1]+"\" to group \""+gameId+"\"", err)
 			}
+			app.mutex.Lock()
 			app.clientGameIds[ids[0]] = gameId
 			app.clientGameIds[ids[1]] = gameId
+			app.mutex.Unlock()
 			app.client.GetWebsocketServer().Groupcast(gameId, message)
 			return nil
 		},
 		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
 			gameId := message.GetPayload()
 			ids := strings.Split(gameId, "-")
+			app.mutex.Lock()
 			delete(app.clientGameIds, ids[0])
 			delete(app.clientGameIds, ids[1])
+			app.mutex.Unlock()
 			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
 			err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[0])
 			if err != nil {
