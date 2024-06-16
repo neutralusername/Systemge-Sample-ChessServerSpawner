@@ -40,21 +40,17 @@ func (app *App) OnStop() error {
 }
 
 func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{
-		app.client.GetName(): func(message *Message.Message) error {
-			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
-			//handle move
-			err := app.client.AsyncMessage(topics.PROPAGATE_MOVE, app.client.GetName(), "...moveData...")
-			if err != nil {
-				panic(err)
-			}
-			return nil
-		},
-	}
+	return map[string]Application.AsyncMessageHandler{}
 }
 
 func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
-	return map[string]Application.SyncMessageHandler{}
+	return map[string]Application.SyncMessageHandler{
+		app.client.GetName(): func(message *Message.Message) (string, error) {
+			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
+			//handle move
+			return "", nil
+		},
+	}
 }
 
 func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {

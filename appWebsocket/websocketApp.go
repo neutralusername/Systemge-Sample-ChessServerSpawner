@@ -36,10 +36,6 @@ func (app *WebsocketApp) OnStop() error {
 
 func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{
-		topics.PROPAGATE_MOVE: func(message *Message.Message) error {
-			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
-			return nil
-		},
 		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
@@ -116,19 +112,6 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			app.clientGameIds[blackId] = gameId
 			return nil
 		},
-		"move": func(client *WebsocketClient.Client, message *Message.Message) error {
-			app.mutex.Lock()
-			defer app.mutex.Unlock()
-			gameId := app.clientGameIds[client.GetId()]
-			if gameId == "" {
-				return Utilities.NewError("You are not in a game", nil)
-			}
-			err := app.client.AsyncMessage(gameId, client.GetId(), message.GetPayload())
-			if err != nil {
-				return Utilities.NewError("Error sending move message", err)
-			}
-			return nil
-		},
 		"endGame": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
 			gameId := app.clientGameIds[client.GetId()]
@@ -139,6 +122,19 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			err := app.client.AsyncMessage(topics.END, app.client.GetName(), gameId)
 			if err != nil {
 				app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
+			}
+			return nil
+		},
+		"move": func(client *WebsocketClient.Client, message *Message.Message) error {
+			app.mutex.Lock()
+			defer app.mutex.Unlock()
+			gameId := app.clientGameIds[client.GetId()]
+			if gameId == "" {
+				return Utilities.NewError("You are not in a game", nil)
+			}
+			_, err := app.client.SyncMessage(gameId, client.GetId(), message.GetPayload())
+			if err != nil {
+				return Utilities.NewError("Error sending move message", err)
 			}
 			return nil
 		},
