@@ -28,8 +28,11 @@ func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
 	if err := app.isLegalMove(fromRow, fromCol, toRow, toCol); err != nil {
 		return nil, Utilities.NewError("Illegal move", err)
 	}
-	notation := app.generateAlgebraicNotation(fromRow, fromCol, toRow, toCol)
 	piece := app.board[fromRow][fromCol]
+	if app.isWhiteTurn() != piece.isWhite() {
+		return nil, Utilities.NewError("Not your turn", nil)
+	}
+	notation := app.generateAlgebraicNotation(fromRow, fromCol, toRow, toCol)
 	switch piece.(type) {
 	case *King:
 		if fromCol-toCol == 2 {
@@ -40,6 +43,9 @@ func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
 	case *Pawn:
 		if fromCol != toCol && app.board[toRow][toCol] == nil {
 			app.board[toRow-1][toCol] = nil
+		}
+		if toRow == 0 || toRow == 7 {
+			app.board[toRow][toCol] = &Queen{white: piece.isWhite()}
 		}
 	case *Rook:
 		piece.(*Rook).hasMoved = true
@@ -58,9 +64,6 @@ func (app *App) isLegalMove(fromRow, fromCol, toRow, toCol int) error {
 	fromPece := app.board[fromRow][fromCol]
 	if fromPece == nil {
 		return Utilities.NewError("no piece at from coordinates", nil)
-	}
-	if app.isWhiteTurn() != fromPece.isWhite() {
-		return Utilities.NewError("not this piece's turn", nil)
 	}
 	toPiece := app.board[toRow][toCol]
 	if toPiece != nil && toPiece.isWhite() == fromPece.isWhite() {
@@ -104,6 +107,9 @@ func (app *App) isLegalMove(fromRow, fromCol, toRow, toCol int) error {
 
 func (app *App) isInCheckAfterMove(fromRow, fromCol, toRow, toCol int) bool {
 	kingRow, kingCol := app.getKingCoordinates(app.isWhiteTurn())
+	if kingRow == -1 || kingCol == -1 {
+		return false
+	}
 	kingPiece := app.board[kingRow][kingCol]
 	app.board[kingRow][kingCol] = nil
 	app.board[toRow][toCol] = app.board[fromRow][fromCol]
