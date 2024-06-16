@@ -132,10 +132,11 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if gameId == "" {
 				return Utilities.NewError("You are not in a game", nil)
 			}
-			_, err := app.client.SyncMessage(gameId, client.GetId(), message.GetPayload())
+			responseMessage, err := app.client.SyncMessage(gameId, client.GetId(), message.GetPayload())
 			if err != nil {
 				return Utilities.NewError("Error sending move message", err)
 			}
+			app.client.GetWebsocketServer().Groupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
 			return nil
 		},
 	}

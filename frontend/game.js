@@ -1,3 +1,4 @@
+import { chessBoard } from "./chessBoard.js"
 
 export class game extends React.Component {
 	constructor(props) {
@@ -5,6 +6,7 @@ export class game extends React.Component {
 	}
 
     render() {
+	
         return React.createElement("div", {
 				style : {
 					gap : "1vmin",
@@ -16,7 +18,7 @@ export class game extends React.Component {
 					justifyContent : "center",
 				}
 			},
-            "game",
+			React.createElement(chessBoard, this.props),
 			React.createElement("button", {
 					style : {
 						marginTop : "1vmin",

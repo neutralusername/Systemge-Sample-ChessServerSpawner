@@ -10,6 +10,8 @@ export class root extends React.Component {
                 errorMessage : "",
                 errorTimeout : null,
                 content: "",
+                board: "",
+                selected: null,
                 WS_CONNECTION: new WebSocket("ws://localhost:8443/ws"),
                 constructMessage: (topic, payload) => {
                     return JSON.stringify({
@@ -44,11 +46,17 @@ export class root extends React.Component {
                     case "propagate_gameStart":
                         this.state.setStateRoot({
                             content: "game",
+                            board: message.payload,
                         });
                         break;
                     case "propagate_gameEnd":
                         this.state.setStateRoot({
                             content: "home",
+                        });
+                        break;
+                    case "propagate_move":
+                        this.state.setStateRoot({
+                            board: message.payload,
                         });
                         break;
                     case "error":

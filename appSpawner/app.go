@@ -98,13 +98,13 @@ func (app *App) New(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error dialing brokerChess", err)
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), id), 5000)
+	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addSyncTopic", app.client.GetName(), id), 5000)
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with broker", err)
 	}
 	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeSyncTopic", app.client.GetName(), id), 5000)
 		if err != nil {
 			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with broker", err).Error())
 		}
