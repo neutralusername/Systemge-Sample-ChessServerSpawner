@@ -16,7 +16,16 @@ export class game extends React.Component {
 					justifyContent : "center",
 				}
 			},
-            "game"
+            "game",
+			React.createElement("button", {
+					style : {
+						marginTop : "1vmin",
+					},
+					onClick : () => {
+						this.props.WS_CONNECTION.send(this.props.constructMessage("endGame", ""))
+					}
+				}, "End Game",
+			)
 		)
     }
 }

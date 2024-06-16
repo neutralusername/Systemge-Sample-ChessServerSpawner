@@ -23,7 +23,6 @@ func New(messageBrokerClient *Client.Client, args []string) (Application.Websock
 		client: messageBrokerClient,
 
 		clientGameIds: make(map[string]string),
-		mutex:         sync.Mutex{},
 	}, nil
 }
 

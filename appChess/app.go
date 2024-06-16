@@ -22,6 +22,7 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 func (app *App) OnStart() error {
 	_, err := app.client.SyncMessage(topics.PROPAGATE_GAMESTART, app.client.GetName(), "...gameStartData...")
 	if err != nil {
+		app.client.GetLogger().Log(Utilities.NewError("Error sending sync message", err).Error())
 		err := app.client.AsyncMessage(topics.END, app.client.GetName(), app.client.GetName())
 		if err != nil {
 			app.client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
@@ -42,7 +43,8 @@ func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHan
 	return map[string]Application.AsyncMessageHandler{
 		app.client.GetName(): func(message *Message.Message) error {
 			println(app.client.GetName() + " received \"" + message.GetPayload() + "\" from: " + message.GetOrigin())
-			err := app.client.AsyncMessage(topics.PROPAGATE_MOVE, app.client.GetName(), message.GetPayload())
+			//handle move
+			err := app.client.AsyncMessage(topics.PROPAGATE_MOVE, app.client.GetName(), "...moveData...")
 			if err != nil {
 				panic(err)
 			}
