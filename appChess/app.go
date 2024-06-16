@@ -27,6 +27,7 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 }
 
 func (app *App) OnStart() error {
+	app.client.AsyncMessage(topics.PROPAGATE_GAMESTART, app.id, "")
 	return nil
 }
 

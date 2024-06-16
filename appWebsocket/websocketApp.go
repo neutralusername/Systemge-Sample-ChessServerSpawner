@@ -41,6 +41,11 @@ func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncM
 			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
 			return nil
 		},
+		topics.PROPAGATE_GAMESTART: func(message *Message.Message) error {
+			println(string(message.Serialize()))
+			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
+			return nil
+		},
 	}
 }
 
@@ -63,31 +68,37 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if app.clientGameIds[message.GetPayload()] != "" {
 				return Utilities.NewError("Opponent is already in a game", nil)
 			}
-			gameId := app.client.GetName() + " " + message.GetPayload()
-			_, err := app.client.SyncMessage(topics.NEW, app.client.GetName(), gameId)
-			if err != nil {
-				return Utilities.NewError("Error spawning new game client", err)
+			if message.GetPayload() == client.GetId() {
+				return Utilities.NewError("You cannot play against yourself", nil)
 			}
-			err = app.client.GetWebsocketServer().AddToGroup(gameId, client.GetId())
+			gameId := client.GetId() + "-" + message.GetPayload()
+
+			err := app.client.GetWebsocketServer().AddToGroup(gameId, client.GetId())
 			if err != nil {
-				_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
-				if err != nil {
-					app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
-				}
 				return Utilities.NewError("Error adding \""+client.GetId()+"\" to group \""+gameId+"\"", err)
 			}
+
 			err = app.client.GetWebsocketServer().AddToGroup(gameId, message.GetPayload())
 			if err != nil {
 				err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, client.GetId())
 				if err != nil {
 					app.client.GetLogger().Log(Utilities.NewError("Error removing \""+client.GetId()+"\" from group \""+gameId+"\"", err).Error())
 				}
-				_, err = app.client.SyncMessage(topics.END, client.GetId(), gameId)
-				if err != nil {
-					app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
-				}
 				return Utilities.NewError("Error adding \""+message.GetPayload()+"\" to group \""+gameId+"\"", err)
 			}
+			_, err = app.client.SyncMessage(topics.NEW, app.client.GetName(), gameId)
+			if err != nil {
+				err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, client.GetId())
+				if err != nil {
+					app.client.GetLogger().Log(Utilities.NewError("Error removing \""+client.GetId()+"\" from group \""+gameId+"\"", err).Error())
+				}
+				err = app.client.GetWebsocketServer().RemoveFromGroup(gameId, message.GetPayload())
+				if err != nil {
+					app.client.GetLogger().Log(Utilities.NewError("Error removing \""+message.GetPayload()+"\" from group \""+gameId+"\"", err).Error())
+				}
+				return Utilities.NewError("Error spawning new game client", err)
+			}
+
 			app.clientGameIds[client.GetId()] = gameId
 			app.clientGameIds[message.GetPayload()] = gameId
 			return nil
@@ -116,7 +127,7 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if err != nil {
 				return Utilities.NewError("Error sending end message", err)
 			}
-			ids := strings.Split(gameId, " ")
+			ids := strings.Split(gameId, "-")
 			delete(app.clientGameIds, ids[0])
 			delete(app.clientGameIds, ids[1])
 			app.client.GetWebsocketServer().Groupcast(gameId, Message.NewAsync("endGame", app.client.GetName(), ""))
@@ -152,7 +163,7 @@ func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 	}
-	ids := strings.Split(gameId, " ")
+	ids := strings.Split(gameId, "-")
 	delete(app.clientGameIds, ids[0])
 	delete(app.clientGameIds, ids[1])
 	app.client.GetWebsocketServer().Groupcast(gameId, Message.NewAsync("endGame", app.client.GetName(), ""))

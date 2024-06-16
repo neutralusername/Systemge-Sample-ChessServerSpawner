@@ -77,7 +77,6 @@ func (app *App) End(message *Message.Message) (string, error) {
 	if err != nil {
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
-	println("ended client " + id)
 	return "", nil
 }
 
@@ -96,7 +95,7 @@ func (app *App) New(message *Message.Message) (string, error) {
 	newClient.SetApplication(chessApp)
 	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
-		return "", Utilities.NewError("Error dialing broker", err)
+		return "", Utilities.NewError("Error dialing brokerChess", err)
 	}
 	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addAsyncTopic", app.client.GetName(), id), 5000)
 	if err != nil {
@@ -110,7 +109,7 @@ func (app *App) New(message *Message.Message) (string, error) {
 		}
 		return "", Utilities.NewError("Error dialing topic resolution server", err)
 	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerChess "+id), 5000)
+	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerChess"+" "+id), 5000)
 	if err != nil {
 		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
 		if err != nil {
@@ -118,7 +117,6 @@ func (app *App) New(message *Message.Message) (string, error) {
 		}
 		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
-	println("created client " + id)
 	err = newClient.Start()
 	if err != nil {
 		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
