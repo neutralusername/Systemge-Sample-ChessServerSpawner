@@ -4,6 +4,8 @@ export class root extends React.Component {
         this.state = {
                 id : "",
                 idInput : "",
+                errorMessage : "",
+                errorTimeout : null,
                 WS_CONNECTION: new WebSocket("ws://localhost:8443/ws"),
                 constructMessage: (topic, payload) => {
                     return JSON.stringify({
@@ -13,6 +15,17 @@ export class root extends React.Component {
                 },
                 setStateRoot: (state) => {
                     this.setState(state)
+                },
+                setErrorMessage: (message) => {
+                    clearTimeout(this.state.errorTimeout)
+                    this.setState({
+                        errorMessage : message,
+                        errorTimeout : setTimeout(() => {
+                            this.setState({
+                                errorMessage : "",
+                            })
+                        }, 5000)
+                    })
                 }
             },
             (this.state.WS_CONNECTION.onmessage = (event) => {
@@ -25,7 +38,7 @@ export class root extends React.Component {
                         break;
                     case "error":
                         let errorMessage = message.payload.split("->").reverse()[0]
-                        console.log(errorMessage)
+                        this.state.setErrorMessage(errorMessage);
                         break;
                     default:
                         console.log("Unknown message topic: " + event.data);
@@ -62,6 +75,14 @@ export class root extends React.Component {
                     alignItems: "center",
                 },
             },
+            React.createElement("div", {
+                style: {
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                },
+            }, this.state.errorMessage || "\u00a0"),
             "your id: " + this.state.id,
             React.createElement("div", {
                     style: {
