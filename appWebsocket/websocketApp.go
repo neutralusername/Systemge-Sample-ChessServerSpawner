@@ -58,9 +58,6 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			gameId, err := func() (string, error) {
 				app.mutex.Lock()
 				defer app.mutex.Unlock()
-				if !app.client.GetWebsocketServer().ClientExists(message.GetPayload()) {
-					return "", Utilities.NewError("opponentId does not exist", nil)
-				}
 				if app.clientGameIds[connection.GetId()] != "" {
 					return "", Utilities.NewError("You are already in a game", nil)
 				}
@@ -72,7 +69,11 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 				app.clientGameIds[message.GetPayload()] = gameId
 				return gameId, nil
 			}()
-			if err != nil {
+			if err != nil || !app.client.GetWebsocketServer().ClientExists(message.GetPayload()) {
+				app.mutex.Lock()
+				delete(app.clientGameIds, connection.GetId())
+				delete(app.clientGameIds, message.GetPayload())
+				app.mutex.Unlock()
 				return Utilities.NewError("Error starting game", err)
 			}
 			_, err = app.client.SyncMessage(topics.NEW, connection.GetId(), gameId)
