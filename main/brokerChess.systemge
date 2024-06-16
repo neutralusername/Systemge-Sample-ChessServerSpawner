@@ -1,0 +1,3 @@
+# broker
+broker :60007 ./MyCertificate.crt ./MyKey.key
+config :60008 ./MyCertificate.crt ./MyKey.key

@@ -1,0 +1,7 @@
+# resolver
+resolver :60000
+config :60001 ./MyCertificate.crt ./MyKey.key
+
+brokerSpawner 127.0.0.1:60005 127.0.0.1 ./MyCertificate.crt new end
+brokerWebsocket 127.0.0.1:60003 127.0.0.1 ./MyCertificate.crt propagate_move
+brokerChess 127.0.0.1:60007 127.0.0.1 ./MyCertificate.crt
