@@ -59,17 +59,6 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
 		"startGame": func(client *WebsocketClient.Client, message *Message.Message) error {
-			app.mutex.Lock()
-			defer app.mutex.Unlock()
-			if app.clientGameIds[client.GetId()] != "" {
-				return Utilities.NewError("You are already in a game", nil)
-			}
-			if app.clientGameIds[message.GetPayload()] != "" {
-				return Utilities.NewError("Opponent is already in a game", nil)
-			}
-			if message.GetPayload() == client.GetId() {
-				return Utilities.NewError("You cannot play against yourself", nil)
-			}
 			err := app.startGame(client.GetId(), message.GetPayload())
 			if err != nil {
 				return Utilities.NewError("Error starting game", err)
@@ -120,8 +109,18 @@ func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
 	app.endGame(gameId)
 }
 
-// requires mutex to be locked
 func (app *WebsocketApp) startGame(whiteId, blackId string) error {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+	if app.clientGameIds[whiteId] != "" {
+		return Utilities.NewError("You are already in a game", nil)
+	}
+	if app.clientGameIds[blackId] != "" {
+		return Utilities.NewError("Opponent is already in a game", nil)
+	}
+	if blackId == whiteId {
+		return Utilities.NewError("You cannot play against yourself", nil)
+	}
 	if app.clientGameIds[whiteId] != "" {
 		return Utilities.NewError("White is already in a game", nil)
 	}
