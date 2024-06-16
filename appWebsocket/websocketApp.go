@@ -79,13 +79,10 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			return nil
 		},
 		"endGame": func(client *WebsocketClient.Client, message *Message.Message) error {
-			app.mutex.Lock()
-			defer app.mutex.Unlock()
-			gameId := app.clientGameIds[client.GetId()]
-			if gameId == "" {
-				return Utilities.NewError("You are not in a game", nil)
+			err := app.endGame(client.GetId())
+			if err != nil {
+				return Utilities.NewError("Error ending game", err)
 			}
-			app.endGame(gameId)
 			return nil
 		},
 	}
@@ -100,13 +97,10 @@ func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
 }
 
 func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-	gameId := app.clientGameIds[client.GetId()]
-	if gameId == "" {
-		return
+	err := app.endGame(client.GetId())
+	if err != nil {
+		app.client.GetLogger().Log(Utilities.NewError("Error ending game on disconnect", err).Error())
 	}
-	app.endGame(gameId)
 }
 
 func (app *WebsocketApp) startGame(whiteId, blackId string) error {
@@ -152,14 +146,19 @@ func (app *WebsocketApp) startGame(whiteId, blackId string) error {
 		}
 		return Utilities.NewError("Error spawning new game client", err)
 	}
-
 	app.clientGameIds[whiteId] = gameId
 	app.clientGameIds[blackId] = gameId
 	return nil
 }
 
 // requires mutex to be locked
-func (app *WebsocketApp) endGame(gameId string) {
+func (app *WebsocketApp) endGame(clientId string) error {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+	gameId := app.clientGameIds[clientId]
+	if gameId == "" {
+		return Utilities.NewError("You are not in a game", nil)
+	}
 	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
@@ -176,4 +175,5 @@ func (app *WebsocketApp) endGame(gameId string) {
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
 	}
+	return nil
 }
