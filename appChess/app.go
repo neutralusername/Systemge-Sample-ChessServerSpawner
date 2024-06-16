@@ -29,7 +29,7 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 func (app *App) OnStart() error {
 	_, err := app.client.SyncMessage(topics.PROPAGATE_GAMESTART, app.id, "")
 	if err != nil {
-		err := app.client.AsyncMessage(topics.END, app.id, "")
+		err := app.client.AsyncMessage(topics.END, app.id, app.id)
 		if err != nil {
 			app.client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
 		}
