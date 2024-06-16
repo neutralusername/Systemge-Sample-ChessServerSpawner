@@ -45,7 +45,7 @@ func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
 			app.board[toRow-1][toCol] = nil
 		}
 		if toRow == 0 || toRow == 7 {
-			app.board[toRow][toCol] = &Queen{white: piece.isWhite()}
+			app.board[fromRow][fromCol] = &Queen{white: piece.isWhite()}
 		}
 	case *Rook:
 		piece.(*Rook).hasMoved = true
