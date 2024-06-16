@@ -4,3 +4,4 @@ config :60004 ./MyCertificate.crt ./MyKey.key
 
 propagate_move async
 propagate_gameStart async
+propagate_gameEnd async

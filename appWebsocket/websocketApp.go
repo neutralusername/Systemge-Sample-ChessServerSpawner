@@ -45,6 +45,22 @@ func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncM
 			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
 			return nil
 		},
+		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
+			gameId := message.GetPayload()
+			ids := strings.Split(gameId, "-")
+			delete(app.clientGameIds, ids[0])
+			delete(app.clientGameIds, ids[1])
+			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
+			err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[0])
+			if err != nil {
+				app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+			}
+			err = app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[1])
+			if err != nil {
+				app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+			}
+			return nil
+		},
 	}
 }
 
@@ -79,9 +95,15 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			return nil
 		},
 		"endGame": func(client *WebsocketClient.Client, message *Message.Message) error {
-			err := app.endGame(client.GetId())
+			app.mutex.Lock()
+			gameId := app.clientGameIds[client.GetId()]
+			app.mutex.Unlock()
+			if gameId == "" {
+				return Utilities.NewError("You are not in a game", nil)
+			}
+			_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
 			if err != nil {
-				return Utilities.NewError("Error ending game", err)
+				app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 			}
 			return nil
 		},
@@ -97,9 +119,15 @@ func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
 }
 
 func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
-	err := app.endGame(client.GetId())
+	app.mutex.Lock()
+	gameId := app.clientGameIds[client.GetId()]
+	app.mutex.Unlock()
+	if gameId == "" {
+		return
+	}
+	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
 	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error ending game on disconnect", err).Error())
+		app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 	}
 }
 
@@ -148,32 +176,5 @@ func (app *WebsocketApp) startGame(whiteId, blackId string) error {
 	}
 	app.clientGameIds[whiteId] = gameId
 	app.clientGameIds[blackId] = gameId
-	return nil
-}
-
-// requires mutex to be locked
-func (app *WebsocketApp) endGame(clientId string) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-	gameId := app.clientGameIds[clientId]
-	if gameId == "" {
-		return Utilities.NewError("You are not in a game", nil)
-	}
-	_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
-	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
-	}
-	ids := strings.Split(gameId, "-")
-	delete(app.clientGameIds, ids[0])
-	delete(app.clientGameIds, ids[1])
-	app.client.GetWebsocketServer().Groupcast(gameId, Message.NewAsync("endGame", app.client.GetName(), ""))
-	err = app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[0])
-	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
-	}
-	err = app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[1])
-	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
-	}
 	return nil
 }

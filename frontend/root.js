@@ -45,7 +45,7 @@ export class root extends React.Component {
                             content: "game",
                         });
                         break;
-                    case "endGame":
+                    case "propagate_gameEnd":
                         this.state.setStateRoot({
                             content: "home",
                         });

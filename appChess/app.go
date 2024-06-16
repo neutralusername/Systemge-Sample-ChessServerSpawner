@@ -32,6 +32,7 @@ func (app *App) OnStart() error {
 }
 
 func (app *App) OnStop() error {
+	app.client.AsyncMessage(topics.PROPAGATE_GAMEEND, app.id, app.id)
 	return nil
 }
 
