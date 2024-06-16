@@ -165,14 +165,14 @@ func (app *App) isValidPawnMove(fromRow, fromCol, toRow, toCol int) error {
 				if fromRow == 1 {
 					return nil
 				} else {
-					return Utilities.NewError("white pawn can only move two squares on first move", nil)
+					return Utilities.NewError("pawn can only move two squares on first move", nil)
 				}
 			} else if fromRow-toRow < -2 {
-				return Utilities.NewError("white pawn cannot move more than two squares", nil)
+				return Utilities.NewError("pawn cannot move more than two squares", nil)
 			} else if fromRow-toRow == 0 {
 				return Utilities.NewError("pawn cannot move horizontally", nil)
 			} else if fromRow-toRow > 0 {
-				return Utilities.NewError("white pawn cannot move backwards", nil)
+				return Utilities.NewError("pawn cannot move backwards", nil)
 			}
 		}
 		if (fromCol-toCol != 1 && fromCol-toCol != -1) || fromRow-toRow != -1 {
@@ -200,14 +200,14 @@ func (app *App) isValidPawnMove(fromRow, fromCol, toRow, toCol int) error {
 				if fromRow == 6 {
 					return nil
 				} else {
-					return Utilities.NewError("black pawn can only move two squares on first move", nil)
+					return Utilities.NewError("pawn can only move two squares on first move", nil)
 				}
 			} else if fromRow-toRow > 2 {
-				return Utilities.NewError("black pawn cannot move more than two squares", nil)
+				return Utilities.NewError("pawn cannot move more than two squares", nil)
 			} else if fromRow-toRow == 0 {
 				return Utilities.NewError("pawn cannot move horizontally", nil)
 			} else if fromRow-toRow < 0 {
-				return Utilities.NewError("black pawn cannot move backwards", nil)
+				return Utilities.NewError("pawn cannot move backwards", nil)
 			}
 		}
 		if (fromCol-toCol != 1 && fromCol-toCol != -1) || fromRow-toRow != 1 {
