@@ -153,8 +153,8 @@ func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
 
 func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
 	app.mutex.Lock()
+	defer app.mutex.Unlock()
 	gameId := app.clientGameIds[client.GetId()]
-	app.mutex.Unlock()
 	if gameId == "" {
 		return
 	}
