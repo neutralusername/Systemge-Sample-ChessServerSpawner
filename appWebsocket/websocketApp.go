@@ -56,20 +56,12 @@ func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncM
 				}
 				return Utilities.NewError("Error adding \""+ids[1]+"\" to group \""+gameId+"\"", err)
 			}
-			app.mutex.Lock()
-			app.clientGameIds[ids[0]] = gameId
-			app.clientGameIds[ids[1]] = gameId
-			app.mutex.Unlock()
 			app.client.GetWebsocketServer().Groupcast(gameId, message)
 			return nil
 		},
 		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
 			gameId := message.GetPayload()
 			ids := strings.Split(gameId, "-")
-			app.mutex.Lock()
-			delete(app.clientGameIds, ids[0])
-			delete(app.clientGameIds, ids[1])
-			app.mutex.Unlock()
 			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
 			err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[0])
 			if err != nil {
@@ -98,9 +90,9 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			whiteId := client.GetId()
 			blackId := message.GetPayload()
 			app.mutex.Lock()
+			defer app.mutex.Unlock()
 			whiteGameId := app.clientGameIds[whiteId]
 			blackGameId := app.clientGameIds[blackId]
-			app.mutex.Unlock()
 			if blackId == whiteId {
 				return Utilities.NewError("You cannot play against yourself", nil)
 			}
@@ -114,6 +106,9 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if err != nil {
 				return Utilities.NewError("Error spawning new game client", err)
 			}
+			gameId := whiteId + "-" + blackId
+			app.clientGameIds[whiteId] = gameId
+			app.clientGameIds[blackId] = gameId
 			return nil
 		},
 		"move": func(client *WebsocketClient.Client, message *Message.Message) error {
@@ -131,8 +126,9 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 		},
 		"endGame": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
+			defer app.mutex.Unlock()
 			gameId := app.clientGameIds[client.GetId()]
-			app.mutex.Unlock()
+			ids := strings.Split(gameId, "-")
 			if gameId == "" {
 				return Utilities.NewError("You are not in a game", nil)
 			}
@@ -140,6 +136,8 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if err != nil {
 				app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 			}
+			delete(app.clientGameIds, ids[0])
+			delete(app.clientGameIds, ids[1])
 			return nil
 		},
 	}
