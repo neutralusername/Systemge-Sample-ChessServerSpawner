@@ -42,7 +42,7 @@ func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncM
 			return nil
 		},
 		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
-			gameId := message.GetPayload()
+			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
 			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
 			err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[0])
@@ -96,15 +96,16 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			blackId := message.GetPayload()
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
-			whiteGameId := app.clientGameIds[whiteId]
-			blackGameId := app.clientGameIds[blackId]
+			if !app.client.GetWebsocketServer().ClientExists(blackId) {
+				return Utilities.NewError("Opponent does not exist", nil)
+			}
 			if blackId == whiteId {
 				return Utilities.NewError("You cannot play against yourself", nil)
 			}
-			if whiteGameId != "" {
+			if app.clientGameIds[whiteId] != "" {
 				return Utilities.NewError("You are already in a game", nil)
 			}
-			if blackGameId != "" {
+			if app.clientGameIds[blackId] != "" {
 				return Utilities.NewError("Opponent is already in a game", nil)
 			}
 			_, err := app.client.SyncMessage(topics.NEW, app.client.GetName(), whiteId+"-"+blackId)

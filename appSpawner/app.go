@@ -88,8 +88,8 @@ func (app *App) New(message *Message.Message) (string, error) {
 	if _, ok := app.spawnedClients[id]; ok {
 		return "", Utilities.NewError("Client "+id+" already exists", nil)
 	}
-	newClient := Client.New("client_"+id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
-	chessApp, err := appChess.New(newClient, []string{id})
+	newClient := Client.New(id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
+	chessApp, err := appChess.New(newClient, nil)
 	if err != nil {
 		return "", Utilities.NewError("Error creating app "+id, err)
 	}
