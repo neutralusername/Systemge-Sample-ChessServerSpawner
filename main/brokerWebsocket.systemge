@@ -2,6 +2,6 @@
 broker :60003 ./MyCertificate.crt ./MyKey.key
 config :60004 ./MyCertificate.crt ./MyKey.key
 
+propagate_gameStart sync
 propagate_move async
-propagate_gameStart async
 propagate_gameEnd async

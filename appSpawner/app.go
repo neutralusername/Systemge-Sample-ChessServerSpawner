@@ -34,13 +34,14 @@ func (app *App) OnStop() error {
 }
 
 func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{}
+	return map[string]Application.AsyncMessageHandler{
+		topics.END: app.End,
+	}
 }
 
 func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
 	return map[string]Application.SyncMessageHandler{
 		topics.NEW: app.New,
-		topics.END: app.End,
 	}
 }
 
@@ -48,36 +49,36 @@ func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandH
 	return map[string]Application.CustomCommandHandler{}
 }
 
-func (app *App) End(message *Message.Message) (string, error) {
+func (app *App) End(message *Message.Message) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	id := message.GetPayload()
 	client := app.spawnedClients[id]
 	if client == nil {
-		return "", Utilities.NewError("Client "+id+" does not exist", nil)
+		return Utilities.NewError("Client "+id+" does not exist", nil)
 	}
 	err := client.Stop()
 	if err != nil {
-		return "", Utilities.NewError("Error stopping client "+id, err)
+		return Utilities.NewError("Error stopping client "+id, err)
 	}
 	delete(app.spawnedClients, id)
 	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
-		return "", Utilities.NewError("Error dialing broker", err)
+		return Utilities.NewError("Error dialing broker", err)
 	}
 	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), message.GetPayload()), 5000)
 	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with broker", err)
+		return Utilities.NewError("Error exchanging messages with broker", err)
 	}
 	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
 	if err != nil {
-		return "", Utilities.NewError("Error dialing topic resolution server", err)
+		return Utilities.NewError("Error dialing topic resolution server", err)
 	}
 	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerChess"+" "+message.GetPayload()), 5000)
 	if err != nil {
-		return "", Utilities.NewError("Error exchanging messages with topic resolution server", err)
+		return Utilities.NewError("Error exchanging messages with topic resolution server", err)
 	}
-	return "", nil
+	return nil
 }
 
 func (app *App) New(message *Message.Message) (string, error) {
