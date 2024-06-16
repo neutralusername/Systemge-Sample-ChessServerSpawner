@@ -13,12 +13,18 @@ import (
 type App struct {
 	client *Client.Client
 
-	board [8][8]Piece
-	moves []ChessMove
-	mutex sync.Mutex
+	whiteId string
+	blackId string
+	board   [8][8]Piece
+	moves   []ChessMove
+	mutex   sync.Mutex
 }
 
 func New(client *Client.Client, args []string) (Application.Application, error) {
+	ids := strings.Split(client.GetName(), "-")
+	if len(ids) != 2 {
+		return nil, Utilities.NewError("Invalid client name", nil)
+	}
 	app := &App{
 		client: client,
 		board: [8][8]Piece{ // first index is row, second index is column. white rooks are at 0,0 and 0,7. black rooks are at 7,0 and 7,7
@@ -31,6 +37,8 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 			{&Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}},
 			{&Rook{false, false}, &Knight{false}, &Bishop{false}, &Queen{false}, &King{false, false}, &Bishop{false}, &Knight{false}, &Rook{false, false}},
 		},
+		whiteId: ids[0],
+		blackId: ids[1],
 	}
 	return app, nil
 }
@@ -83,6 +91,12 @@ func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandl
 			row1, col1, row2, col2 := Utilities.StringToInt(segments[0]), Utilities.StringToInt(segments[1]), Utilities.StringToInt(segments[2]), Utilities.StringToInt(segments[3])
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
+			if app.isWhiteTurn() && message.GetOrigin() != app.whiteId {
+				return "", Utilities.NewError("Not your turn", nil)
+			}
+			if !app.isWhiteTurn() && message.GetOrigin() != app.blackId {
+				return "", Utilities.NewError("Not your turn", nil)
+			}
 			_, err := app.move(row1, col1, row2, col2)
 			if err != nil {
 				return "", Utilities.NewError("Invalid move", err)
