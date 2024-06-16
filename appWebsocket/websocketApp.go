@@ -54,10 +54,10 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
-		"startGame": func(connection *WebsocketClient.Client, message *Message.Message) error {
+		"startGame": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
-			if app.clientGameIds[connection.GetId()] != "" {
+			if app.clientGameIds[client.GetId()] != "" {
 				return Utilities.NewError("You are already in a game", nil)
 			}
 			if app.clientGameIds[message.GetPayload()] != "" {
@@ -68,51 +68,51 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if err != nil {
 				return Utilities.NewError("Error spawning new game client", err)
 			}
-			err = app.client.GetWebsocketServer().AddToGroup(gameId, connection.GetId())
+			err = app.client.GetWebsocketServer().AddToGroup(gameId, client.GetId())
 			if err != nil {
 				_, err := app.client.SyncMessage(topics.END, app.client.GetName(), gameId)
 				if err != nil {
 					app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 				}
-				return Utilities.NewError("Error adding \""+connection.GetId()+"\" to group \""+gameId+"\"", err)
+				return Utilities.NewError("Error adding \""+client.GetId()+"\" to group \""+gameId+"\"", err)
 			}
 			err = app.client.GetWebsocketServer().AddToGroup(gameId, message.GetPayload())
 			if err != nil {
-				err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, connection.GetId())
+				err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, client.GetId())
 				if err != nil {
-					app.client.GetLogger().Log(Utilities.NewError("Error removing \""+connection.GetId()+"\" from group \""+gameId+"\"", err).Error())
+					app.client.GetLogger().Log(Utilities.NewError("Error removing \""+client.GetId()+"\" from group \""+gameId+"\"", err).Error())
 				}
-				_, err = app.client.SyncMessage(topics.END, connection.GetId(), gameId)
+				_, err = app.client.SyncMessage(topics.END, client.GetId(), gameId)
 				if err != nil {
 					app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 				}
 				return Utilities.NewError("Error adding \""+message.GetPayload()+"\" to group \""+gameId+"\"", err)
 			}
-			app.clientGameIds[connection.GetId()] = gameId
+			app.clientGameIds[client.GetId()] = gameId
 			app.clientGameIds[message.GetPayload()] = gameId
 			return nil
 		},
-		"move": func(connection *WebsocketClient.Client, message *Message.Message) error {
+		"move": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
-			gameId := app.clientGameIds[connection.GetId()]
+			gameId := app.clientGameIds[client.GetId()]
 			if gameId == "" {
 				return Utilities.NewError("You are not in a game", nil)
 			}
-			err := app.client.AsyncMessage(gameId, connection.GetId(), message.GetPayload())
+			err := app.client.AsyncMessage(gameId, client.GetId(), message.GetPayload())
 			if err != nil {
 				return Utilities.NewError("Error sending move message", err)
 			}
 			return nil
 		},
-		"endGame": func(connection *WebsocketClient.Client, message *Message.Message) error {
+		"endGame": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
-			gameId := app.clientGameIds[connection.GetId()]
+			gameId := app.clientGameIds[client.GetId()]
 			if gameId == "" {
 				return Utilities.NewError("You are not in a game", nil)
 			}
-			_, err := app.client.SyncMessage(topics.END, connection.GetId(), gameId)
+			_, err := app.client.SyncMessage(topics.END, client.GetId(), gameId)
 			if err != nil {
 				return Utilities.NewError("Error sending end message", err)
 			}
@@ -133,18 +133,18 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 	}
 }
 
-func (app *WebsocketApp) OnConnectHandler(connection *WebsocketClient.Client) {
-	err := connection.Send(Message.NewAsync("connected", app.client.GetName(), connection.GetId()).Serialize())
+func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
+	err := client.Send(Message.NewAsync("connected", app.client.GetName(), client.GetId()).Serialize())
 	if err != nil {
-		connection.Disconnect()
+		client.Disconnect()
 		app.client.GetLogger().Log(Utilities.NewError("Error sending connected message", err).Error())
 	}
 }
 
-func (app *WebsocketApp) OnDisconnectHandler(connection *WebsocketClient.Client) {
+func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	gameId := app.clientGameIds[connection.GetId()]
+	gameId := app.clientGameIds[client.GetId()]
 	if gameId == "" {
 		return
 	}
