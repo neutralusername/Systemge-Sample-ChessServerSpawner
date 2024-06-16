@@ -92,7 +92,7 @@ export class root extends React.Component {
                         alignItems: "center",
                     },
                 },
-                "enter another id to start a game: "
+                "enter another id or share your id"
             ),
             React.createElement("div", {
                     style: {
