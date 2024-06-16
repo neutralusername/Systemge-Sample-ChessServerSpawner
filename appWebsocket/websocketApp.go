@@ -92,10 +92,10 @@ func (app *WebsocketApp) GetCustomCommandHandlers() map[string]Application.Custo
 func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
 		"startGame": func(client *WebsocketClient.Client, message *Message.Message) error {
-			whiteId := client.GetId()
-			blackId := message.GetPayload()
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
+			whiteId := client.GetId()
+			blackId := message.GetPayload()
 			if !app.client.GetWebsocketServer().ClientExists(blackId) {
 				return Utilities.NewError("Opponent does not exist", nil)
 			}
@@ -108,11 +108,11 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 			if app.clientGameIds[blackId] != "" {
 				return Utilities.NewError("Opponent is already in a game", nil)
 			}
-			_, err := app.client.SyncMessage(topics.NEW, app.client.GetName(), whiteId+"-"+blackId)
+			gameId := whiteId + "-" + blackId
+			_, err := app.client.SyncMessage(topics.NEW, app.client.GetName(), gameId)
 			if err != nil {
 				return Utilities.NewError("Error spawning new game client", err)
 			}
-			gameId := whiteId + "-" + blackId
 			app.clientGameIds[whiteId] = gameId
 			app.clientGameIds[blackId] = gameId
 			return nil
@@ -156,8 +156,8 @@ func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
 
 func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
 	app.mutex.Lock()
-	defer app.mutex.Unlock()
 	gameId := app.clientGameIds[client.GetId()]
+	app.mutex.Unlock()
 	if gameId == "" {
 		return
 	}
