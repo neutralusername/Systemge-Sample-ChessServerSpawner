@@ -6,6 +6,7 @@ import (
 	"Systemge/Utilities"
 	"Systemge/WebsocketClient"
 	"SystemgeSampleChessServer/topics"
+	"strings"
 )
 
 func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
@@ -56,14 +57,31 @@ func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.We
 			if gameId == "" {
 				return Utilities.NewError("You are not in a game", nil)
 			}
-			responseMessage, err := app.client.SyncMessage(gameId, client.GetId(), message.GetPayload())
-			if err != nil {
-				return Utilities.NewError("Error sending move message", err)
+			moveSegments := strings.Split(message.GetPayload(), " ")
+			if len(moveSegments) != 4 {
+				return Utilities.NewError("Invalid move format", nil)
 			}
-			app.client.GetWebsocketServer().Groupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
+			err := app.handleMove(gameId, client.GetId(), message.GetPayload())
+			if err != nil {
+				return Utilities.NewError("Error handling move", err)
+			}
 			return nil
 		},
 	}
+}
+
+func (app *AppWebsocket) handleMove(gameId, playerId, move string) error {
+	segments := strings.Split(move, " ")
+	if len(segments) != 4 {
+		return Utilities.NewError("Invalid message format", nil)
+	}
+	responseMessage, err := app.client.SyncMessage(gameId, playerId, move)
+	if err != nil {
+		return Utilities.NewError("Error sending move message", err)
+	}
+	app.client.GetWebsocketServer().Groupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
+	return nil
+
 }
 
 func (app *AppWebsocket) OnConnectHandler(client *WebsocketClient.Client) {
