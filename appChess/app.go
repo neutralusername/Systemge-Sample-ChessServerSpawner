@@ -3,7 +3,6 @@ package appChess
 import (
 	"Systemge/Application"
 	"Systemge/Client"
-	"Systemge/Message"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/topics"
 	"strings"
@@ -43,20 +42,6 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 	return app, nil
 }
 
-func (app *App) marshalBoard() string {
-	var builder strings.Builder
-	for _, row := range app.board {
-		for _, piece := range row {
-			if piece == nil {
-				builder.WriteString(".")
-			} else {
-				builder.WriteString(piece.getLetter())
-			}
-		}
-	}
-	return builder.String()
-}
-
 func (app *App) OnStart() error {
 	_, err := app.client.SyncMessage(topics.PROPAGATE_GAMESTART, app.client.GetName(), app.marshalBoard())
 	if err != nil {
@@ -75,37 +60,4 @@ func (app *App) OnStop() error {
 		app.client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
 	}
 	return nil
-}
-
-func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{}
-}
-
-func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
-	return map[string]Application.SyncMessageHandler{
-		app.client.GetName(): func(message *Message.Message) (string, error) {
-			segments := strings.Split(message.GetPayload(), " ")
-			if len(segments) != 4 {
-				return "", Utilities.NewError("Invalid message format", nil)
-			}
-			row1, col1, row2, col2 := Utilities.StringToInt(segments[0]), Utilities.StringToInt(segments[1]), Utilities.StringToInt(segments[2]), Utilities.StringToInt(segments[3])
-			app.mutex.Lock()
-			defer app.mutex.Unlock()
-			if app.isWhiteTurn() && message.GetOrigin() != app.whiteId {
-				return "", Utilities.NewError("Not your turn", nil)
-			}
-			if !app.isWhiteTurn() && message.GetOrigin() != app.blackId {
-				return "", Utilities.NewError("Not your turn", nil)
-			}
-			_, err := app.move(row1, col1, row2, col2)
-			if err != nil {
-				return "", Utilities.NewError("Invalid move", err)
-			}
-			return app.marshalBoard(), nil
-		},
-	}
-}
-
-func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
-	return map[string]Application.CustomCommandHandler{}
 }
