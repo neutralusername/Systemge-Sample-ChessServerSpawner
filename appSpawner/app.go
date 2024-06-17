@@ -64,12 +64,12 @@ func (app *App) endClient(args []string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	if len(args) != 1 {
-		return Utilities.NewError("No game id provided", nil)
+		return Utilities.NewError("No client id provided", nil)
 	}
 	id := args[0]
 	err := app.EndClient(id)
 	if err != nil {
-		return Utilities.NewError("Error ending game "+id, err)
+		return Utilities.NewError("Error ending client "+id, err)
 	}
 	return nil
 }
