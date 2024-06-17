@@ -14,8 +14,6 @@ func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHan
 }
 
 func (app *App) End(message *Message.Message) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
 	id := message.GetPayload()
 	err := app.EndClient(id)
 	if err != nil {

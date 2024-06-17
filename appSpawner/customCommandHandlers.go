@@ -22,8 +22,6 @@ func (app *App) activeClients(args []string) error {
 }
 
 func (app *App) endClient(args []string) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
 	if len(args) != 1 {
 		return Utilities.NewError("No client id provided", nil)
 	}

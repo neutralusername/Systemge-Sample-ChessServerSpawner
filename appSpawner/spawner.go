@@ -8,6 +8,8 @@ import (
 )
 
 func (app *App) EndClient(id string) error {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
 	client := app.spawnedClients[id]
 	if client == nil {
 		return Utilities.NewError("Client "+id+" does not exist", nil)
