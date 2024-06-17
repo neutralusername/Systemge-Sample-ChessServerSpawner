@@ -14,7 +14,7 @@ export class game extends React.Component {
 						marginTop : "1vmin",
 						fontSize : "2vmin",
 					}
-				},moveNumber+ ":"+ move.algebraicNotation
+				},moveNumber+ move.algebraicNotation
 			))
 		})
         return React.createElement("div", {
