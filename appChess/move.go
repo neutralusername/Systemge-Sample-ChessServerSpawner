@@ -25,12 +25,12 @@ func newChessMove(fromRow, fromCol, toRow, toCol int, algebraicNotation string) 
 }
 
 func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
-	if err := app.isLegalMove(fromRow, fromCol, toRow, toCol); err != nil {
-		return nil, Utilities.NewError("Illegal move", err)
-	}
 	piece := app.board[fromRow][fromCol]
 	if app.isWhiteTurn() != piece.isWhite() {
-		return nil, Utilities.NewError("Not your turn", nil)
+		return nil, Utilities.NewError("Cannot move opponent's piece", nil)
+	}
+	if err := app.isLegalMove(fromRow, fromCol, toRow, toCol); err != nil {
+		return nil, Utilities.NewError("Illegal move", err)
 	}
 	notation := app.generateAlgebraicNotation(fromRow, fromCol, toRow, toCol)
 	switch piece.(type) {
