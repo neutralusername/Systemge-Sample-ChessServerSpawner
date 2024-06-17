@@ -111,6 +111,9 @@ func (app *App) isInCheckAfterMove(fromRow, fromCol, toRow, toCol int) bool {
 	if kingRow == -1 || kingCol == -1 {
 		return false
 	}
+	if fromRow == kingRow && fromCol == kingCol {
+		kingRow, kingCol = toRow, toCol
+	}
 	kingPiece := app.board[kingRow][kingCol]
 	app.board[kingRow][kingCol] = nil
 	app.board[toRow][toCol] = app.board[fromRow][fromCol]
@@ -256,6 +259,11 @@ func (app *App) isValidCastleMove(fromRow, fromCol, toRow, toCol int) error {
 				return Utilities.NewError("cannot castle through pieces", nil)
 			}
 		}
+		for i := 3; i < 5; i++ {
+			if app.isInCheckAfterMove(fromRow, fromCol, fromRow, i) {
+				return Utilities.NewError("cannot castle through check", nil)
+			}
+		}
 	}
 	if fromCol-toCol == -2 {
 		rook := app.board[fromRow][7].(*Rook)
@@ -265,6 +273,11 @@ func (app *App) isValidCastleMove(fromRow, fromCol, toRow, toCol int) error {
 		for i := 5; i < 7; i++ {
 			if app.board[fromRow][i] != nil {
 				return Utilities.NewError("cannot castle through pieces", nil)
+			}
+		}
+		for i := 4; i < 6; i++ {
+			if app.isInCheckAfterMove(fromRow, fromCol, fromRow, i) {
+				return Utilities.NewError("cannot castle through check", nil)
 			}
 		}
 	}
