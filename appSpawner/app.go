@@ -3,9 +3,6 @@ package appSpawner
 import (
 	"Systemge/Application"
 	"Systemge/Client"
-	"Systemge/Message"
-	"Systemge/Utilities"
-	"SystemgeSampleChessServer/topics"
 	"sync"
 )
 
@@ -30,66 +27,4 @@ func (app *App) OnStart() error {
 
 func (app *App) OnStop() error {
 	return nil
-}
-
-func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{
-		topics.END: app.End,
-	}
-}
-
-func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
-	return map[string]Application.SyncMessageHandler{
-		topics.NEW: app.New,
-	}
-}
-
-func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
-	return map[string]Application.CustomCommandHandler{
-		"activeClients": app.activeClients,
-		"endClient":     app.endClient,
-	}
-}
-
-func (app *App) activeClients(args []string) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-	for id := range app.spawnedClients {
-		println(id)
-	}
-	return nil
-}
-
-func (app *App) endClient(args []string) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-	if len(args) != 1 {
-		return Utilities.NewError("No client id provided", nil)
-	}
-	id := args[0]
-	err := app.EndClient(id)
-	if err != nil {
-		return Utilities.NewError("Error ending client "+id, err)
-	}
-	return nil
-}
-
-func (app *App) End(message *Message.Message) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-	id := message.GetPayload()
-	err := app.EndClient(id)
-	if err != nil {
-		return Utilities.NewError("Error ending client "+id, err)
-	}
-	return nil
-}
-
-func (app *App) New(message *Message.Message) (string, error) {
-	id := message.GetPayload()
-	err := app.StartClient(id)
-	if err != nil {
-		return "", Utilities.NewError("Error starting client "+id, err)
-	}
-	return id, nil
 }
