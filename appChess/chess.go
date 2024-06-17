@@ -15,3 +15,7 @@ func (app *App) marshalBoard() string {
 	}
 	return builder.String()
 }
+
+func (app *App) isWhiteTurn() bool {
+	return len(app.moves)%2 == 0
+}

@@ -356,7 +356,3 @@ func (app *App) isValidRookMove(fromRow, fromCol, toRow, toCol int) error {
 	}
 	return nil
 }
-
-func (app *App) isWhiteTurn() bool {
-	return len(app.moves)%2 == 0
-}
