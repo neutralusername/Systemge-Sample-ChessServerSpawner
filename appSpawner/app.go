@@ -46,12 +46,12 @@ func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandl
 
 func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
 	return map[string]Application.CustomCommandHandler{
-		"activeClients": app.activeGames,
-		"endClient":     app.endGame,
+		"activeClients": app.activeClients,
+		"endClient":     app.endClient,
 	}
 }
 
-func (app *App) activeGames(args []string) error {
+func (app *App) activeClients(args []string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	for id := range app.spawnedClients {
@@ -60,7 +60,7 @@ func (app *App) activeGames(args []string) error {
 	return nil
 }
 
-func (app *App) endGame(args []string) error {
+func (app *App) endClient(args []string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	if len(args) != 1 {
