@@ -26,6 +26,9 @@ func newChessMove(fromRow, fromCol, toRow, toCol int, algebraicNotation string) 
 
 func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
 	piece := app.board[fromRow][fromCol]
+	if piece == nil {
+		return nil, Utilities.NewError("no piece at from coordinates", nil)
+	}
 	if app.isWhiteTurn() != piece.isWhite() {
 		return nil, Utilities.NewError("Cannot move opponent's piece", nil)
 	}
@@ -62,9 +65,6 @@ func (app *App) isLegalMove(fromRow, fromCol, toRow, toCol int) error {
 		return Utilities.NewError("coordinates out of bounds", nil)
 	}
 	fromPece := app.board[fromRow][fromCol]
-	if fromPece == nil {
-		return Utilities.NewError("no piece at from coordinates", nil)
-	}
 	toPiece := app.board[toRow][toCol]
 	if toPiece != nil && toPiece.isWhite() == fromPece.isWhite() {
 		return Utilities.NewError("cannot take own piece", nil)
