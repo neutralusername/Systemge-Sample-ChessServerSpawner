@@ -1,7 +1,7 @@
 package appSpawner
 
 import (
-	"Systemge/Client"
+	"Systemge/Module"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appChess"
 )
@@ -35,13 +35,8 @@ func (app *App) StartClient(id string) error {
 	if _, ok := app.spawnedClients[id]; ok {
 		return Utilities.NewError("Client "+id+" already exists", nil)
 	}
-	newClient := Client.New(id, app.client.GetTopicResolutionServerAddress(), app.client.GetLogger(), nil)
-	chessApp, err := appChess.New(newClient, nil)
-	if err != nil {
-		return Utilities.NewError("Error creating app "+id, err)
-	}
-	newClient.SetApplication(chessApp)
-	err = app.client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	newClient := Module.NewClient(id, app.client.GetTopicResolutionServerAddress(), "error.log", appChess.New, nil)
+	err := app.client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		return Utilities.NewError("Error adding sync topic \""+id+"\"", err)
 	}
