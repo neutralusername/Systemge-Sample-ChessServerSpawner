@@ -11,6 +11,7 @@ export class root extends React.Component {
                 errorTimeout : null,
                 content: "",
                 board: "",
+                moves : [],
                 selected: null,
                 WS_CONNECTION: new WebSocket("ws://localhost:8443/ws"),
                 constructMessage: (topic, payload) => {
@@ -60,8 +61,10 @@ export class root extends React.Component {
                         let boardCharArray = this.state.board.split("");
                         boardCharArray[chessMove.toRow * 8 + chessMove.toCol] = boardCharArray[fromIndex];
                         boardCharArray[fromIndex] = ".";
+                        this.state.setErrorMessage((this.state.moves.length % 2 === 0 ? "white move: " : "black move: ") + chessMove.algebraicNotation)
                         this.state.setStateRoot({
                             board: boardCharArray.join(""),
+                            moves: [...this.state.moves, chessMove],
                         });
                         break;
                     case "error":
