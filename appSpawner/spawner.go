@@ -2,7 +2,6 @@ package appSpawner
 
 import (
 	"Systemge/Client"
-	"Systemge/Message"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appChess"
 )
@@ -19,21 +18,13 @@ func (app *App) EndClient(id string) error {
 		return Utilities.NewError("Error stopping client "+id, err)
 	}
 	delete(app.spawnedClients, id)
-	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
+	err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return Utilities.NewError("Error dialing broker", err)
+		app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+	err = app.client.UnregisterTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return Utilities.NewError("Error exchanging messages with broker", err)
-	}
-	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
-	if err != nil {
-		return Utilities.NewError("Error dialing topic resolution server", err)
-	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerChess"+" "+id), 5000)
-	if err != nil {
-		return Utilities.NewError("Error exchanging messages with topic resolution server", err)
+		app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 	}
 	return nil
 }
@@ -50,39 +41,27 @@ func (app *App) StartClient(id string) error {
 		return Utilities.NewError("Error creating app "+id, err)
 	}
 	newClient.SetApplication(chessApp)
-	brokerNetConn, err := Utilities.TlsDial("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
+	err = app.client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		return Utilities.NewError("Error dialing brokerChess", err)
+		return Utilities.NewError("Error adding sync topic \""+id+"\"", err)
 	}
-	_, err = Utilities.TcpExchange(brokerNetConn, Message.NewAsync("addSyncTopic", app.client.GetName(), id), 5000)
+	err = app.client.RegisterTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerChess", id)
 	if err != nil {
-		return Utilities.NewError("Error exchanging messages with broker", err)
-	}
-	resolverNetConn, err := Utilities.TlsDial("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"))
-	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeSyncTopic", app.client.GetName(), id), 5000)
+		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with broker", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		return Utilities.NewError("Error dialing topic resolution server", err)
-	}
-	_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("registerTopics", app.client.GetName(), "brokerChess"+" "+id), 5000)
-	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
-		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with broker", err).Error())
-		}
-		return Utilities.NewError("Error exchanging messages with topic resolution server", err)
+		return Utilities.NewError("Error registering topic", err)
 	}
 	err = newClient.Start()
 	if err != nil {
-		_, err := Utilities.TcpExchange(brokerNetConn, Message.NewAsync("removeAsyncTopic", app.client.GetName(), id), 5000)
+		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with broker", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		_, err = Utilities.TcpExchange(resolverNetConn, Message.NewAsync("unregisterTopics", app.client.GetName(), "brokerChess"+" "+id), 5000)
+		err = app.client.UnregisterTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error exchanging messages with topic resolution server", err).Error())
+			app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 		}
 		return Utilities.NewError("Error starting client", err)
 	}
