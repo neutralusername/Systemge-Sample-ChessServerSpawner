@@ -46,8 +46,8 @@ func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandl
 
 func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
 	return map[string]Application.CustomCommandHandler{
-		"activeGames": app.activeGames,
-		"endGame":     app.endGame,
+		"activeClients": app.activeGames,
+		"endClient":     app.endGame,
 	}
 }
 
