@@ -17,6 +17,7 @@ type App struct {
 	board   [8][8]Piece
 	moves   []ChessMove
 	mutex   sync.Mutex
+	mode960 bool
 }
 
 func New(client *Client.Client, args []string) (Application.Application, error) {
@@ -25,19 +26,15 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 		return nil, Utilities.NewError("Invalid client name", nil)
 	}
 	app := &App{
-		client: client,
-		board: [8][8]Piece{ // first index is row, second index is column. white rooks are at 0,0 and 0,7. black rooks are at 7,0 and 7,7
-			{&Rook{true, false}, &Knight{true}, &Bishop{true}, &Queen{true}, &King{true, false}, &Bishop{true}, &Knight{true}, &Rook{true, false}},
-			{&Pawn{true}, &Pawn{true}, &Pawn{true}, &Pawn{true}, &Pawn{true}, &Pawn{true}, &Pawn{true}, &Pawn{true}},
-			{nil, nil, nil, nil, nil, nil, nil, nil},
-			{nil, nil, nil, nil, nil, nil, nil, nil},
-			{nil, nil, nil, nil, nil, nil, nil, nil},
-			{nil, nil, nil, nil, nil, nil, nil, nil},
-			{&Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}, &Pawn{false}},
-			{&Rook{false, false}, &Knight{false}, &Bishop{false}, &Queen{false}, &King{false, false}, &Bishop{false}, &Knight{false}, &Rook{false, false}},
-		},
+		client:  client,
 		whiteId: ids[0],
 		blackId: ids[1],
+		mode960: false,
+	}
+	if app.mode960 {
+		app.board = get960StartingPosition()
+	} else {
+		app.board = getStandardStartingPosition()
 	}
 	return app, nil
 }
