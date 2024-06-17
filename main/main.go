@@ -34,5 +34,5 @@ func main() {
 		clientSpawner,
 		clientWebsocket,
 		Module.NewHTTPServerFromConfig("httpServe.systemge", ERROR_LOG_FILE_PATH),
-	), Module.MergeCustomCommandHandlers(clientSpawner.GetApplication().GetCustomCommandHandlers(), clientWebsocket.GetApplication().GetCustomCommandHandlers(), clientWebsocket.GetWebsocketServer().GetCustomCommandHandlers()))
+	), clientSpawner.GetApplication().GetCustomCommandHandlers(), clientWebsocket.GetApplication().GetCustomCommandHandlers(), clientWebsocket.GetWebsocketServer().GetCustomCommandHandlers())
 }

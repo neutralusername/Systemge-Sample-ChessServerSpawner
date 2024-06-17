@@ -7,8 +7,8 @@ import (
 
 func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
 	return map[string]Application.CustomCommandHandler{
-		"activeClients": app.activeClients,
-		"endClient":     app.endClient,
+		"spawnedClients":   app.activeClients,
+		"endSpawnedClient": app.endClient,
 	}
 }
 
