@@ -61,6 +61,7 @@ export class root extends React.Component {
                         let boardCharArray = this.state.board.split("");
                         boardCharArray[chessMove.toRow * 8 + chessMove.toCol] = boardCharArray[fromIndex];
                         boardCharArray[fromIndex] = ".";
+                        //abusing the setErrorMessage function to display the move
                         this.state.setErrorMessage((this.state.moves.length % 2 === 0 ? "white move: " : "black move: ") + chessMove.algebraicNotation)
                         this.state.setStateRoot({
                             board: boardCharArray.join(""),
