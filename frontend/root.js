@@ -55,8 +55,13 @@ export class root extends React.Component {
                         });
                         break;
                     case "propagate_move":
+                        let chessMove = JSON.parse(message.payload)
+                        let fromIndex = chessMove.fromRow * 8 + chessMove.fromCol;
+                        let boardCharArray = this.state.board.split("");
+                        boardCharArray[chessMove.toRow * 8 + chessMove.toCol] = boardCharArray[fromIndex];
+                        boardCharArray[fromIndex] = ".";
                         this.state.setStateRoot({
-                            board: message.payload,
+                            board: boardCharArray.join(""),
                         });
                         break;
                     case "error":

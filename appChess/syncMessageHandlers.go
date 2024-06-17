@@ -15,19 +15,27 @@ func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandl
 				return "", Utilities.NewError("Invalid message format", nil)
 			}
 			row1, col1, row2, col2 := Utilities.StringToInt(segments[0]), Utilities.StringToInt(segments[1]), Utilities.StringToInt(segments[2]), Utilities.StringToInt(segments[3])
-			app.mutex.Lock()
-			defer app.mutex.Unlock()
-			if app.isWhiteTurn() && message.GetOrigin() != app.whiteId {
-				return "", Utilities.NewError("Not your turn", nil)
-			}
-			if !app.isWhiteTurn() && message.GetOrigin() != app.blackId {
-				return "", Utilities.NewError("Not your turn", nil)
-			}
-			_, err := app.move(row1, col1, row2, col2)
+			chessMove, err := app.Move(message.GetOrigin(), row1, col1, row2, col2)
 			if err != nil {
-				return "", Utilities.NewError("Invalid move", err)
+				return "", err
 			}
-			return app.marshalBoard(), nil
+			return chessMove.Marshal(), nil
 		},
 	}
+}
+
+func (app *App) Move(playerId string, rowFrom, colFrom, rowTo, colTo int) (*ChessMove, error) {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+	if app.isWhiteTurn() && playerId != app.whiteId {
+		return nil, Utilities.NewError("Not your turn", nil)
+	}
+	if !app.isWhiteTurn() && playerId != app.blackId {
+		return nil, Utilities.NewError("Not your turn", nil)
+	}
+	chessMove, err := app.move(rowFrom, colFrom, rowTo, colTo)
+	if err != nil {
+		return nil, Utilities.NewError("Invalid move", err)
+	}
+	return chessMove, nil
 }

@@ -1,17 +1,21 @@
 package appChess
 
-import "Systemge/Utilities"
+import (
+	"Systemge/Utilities"
+	"encoding/json"
+)
 
 type ChessMove struct {
-	FromRow           int
-	FromCol           int
-	ToRow             int
-	ToCol             int
-	AlgebraicNotation string
+	FromRow           int    `json:"fromRow"`
+	FromCol           int    `json:"fromCol"`
+	ToRow             int    `json:"toRow"`
+	ToCol             int    `json:"toCol"`
+	AlgebraicNotation string `json:"algebraicNotation"`
 }
 
 func (chessMove *ChessMove) Marshal() string {
-	return chessMove.AlgebraicNotation
+	json, _ := json.Marshal(chessMove)
+	return string(json)
 }
 
 func newChessMove(fromRow, fromCol, toRow, toCol int, algebraicNotation string) *ChessMove {
