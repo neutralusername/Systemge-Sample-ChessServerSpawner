@@ -29,9 +29,10 @@ func main() {
 		panic(err)
 	}
 	clientSpawner := Module.NewClient("clientSpawner", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, appSpawner.New, nil)
+	clientWebsocket := Module.NewWebsocketClient("clientWebsocket", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, "/ws", WEBSOCKET_PORT, "", "", appWebsocket.New, nil)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		clientSpawner,
-		Module.NewWebsocketClient("clientWebsocket", TOPICRESOLUTIONSERVER_ADDRESS, ERROR_LOG_FILE_PATH, "/ws", WEBSOCKET_PORT, "", "", appWebsocket.New, nil),
+		clientWebsocket,
 		Module.NewHTTPServerFromConfig("httpServe.systemge", ERROR_LOG_FILE_PATH),
-	), clientSpawner.GetApplication().GetCustomCommandHandlers())
+	), Module.MergeCustomCommandHandlers(clientSpawner.GetApplication().GetCustomCommandHandlers(), clientWebsocket.GetApplication().GetCustomCommandHandlers(), clientWebsocket.GetWebsocketServer().GetCustomCommandHandlers()))
 }
