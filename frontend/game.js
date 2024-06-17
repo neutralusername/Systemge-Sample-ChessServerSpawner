@@ -6,7 +6,17 @@ export class game extends React.Component {
 	}
 
     render() {
-	
+		let moves = []
+		this.props.moves.forEach((move, i) => {
+			let moveNumber = (i % 2 == 0) ? (i / 2 + 1) + ". " : (i + 1) / 2 + ". "
+			moves.push(React.createElement("div", {
+					style : {
+						marginTop : "1vmin",
+						fontSize : "2vmin",
+					}
+				},moveNumber+ ":"+ move.algebraicNotation
+			))
+		})
         return React.createElement("div", {
 				style : {
 					gap : "1vmin",
@@ -27,7 +37,8 @@ export class game extends React.Component {
 						this.props.WS_CONNECTION.send(this.props.constructMessage("endGame", ""))
 					}
 				}, "End Game",
-			)
+			),
+			moves,
 		)
     }
 }
