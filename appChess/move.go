@@ -43,6 +43,7 @@ func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
 		} else if fromCol-toCol == -2 {
 			app.board[fromRow][fromCol+3], app.board[fromRow][fromCol+1] = app.board[fromRow][fromCol+1], app.board[fromRow][fromCol+3]
 		}
+		piece.(*King).hasMoved = true
 	case *Pawn:
 		if fromCol != toCol && app.board[toRow][toCol] == nil {
 			app.board[toRow-1][toCol] = nil
