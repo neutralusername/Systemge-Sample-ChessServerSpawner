@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (app *WebsocketApp) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
+func (app *AppWebsocket) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
 	return map[string]Application.SyncMessageHandler{
 		topics.PROPAGATE_GAMESTART: func(message *Message.Message) (string, error) {
 			gameId := message.GetOrigin()

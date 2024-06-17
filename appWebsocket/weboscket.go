@@ -8,7 +8,7 @@ import (
 	"SystemgeSampleChessServer/topics"
 )
 
-func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
+func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
 		"startGame": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
@@ -66,7 +66,7 @@ func (app *WebsocketApp) GetWebsocketMessageHandlers() map[string]Application.We
 	}
 }
 
-func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
+func (app *AppWebsocket) OnConnectHandler(client *WebsocketClient.Client) {
 	err := client.Send(Message.NewAsync("connected", app.client.GetName(), client.GetId()).Serialize())
 	if err != nil {
 		client.Disconnect()
@@ -74,7 +74,7 @@ func (app *WebsocketApp) OnConnectHandler(client *WebsocketClient.Client) {
 	}
 }
 
-func (app *WebsocketApp) OnDisconnectHandler(client *WebsocketClient.Client) {
+func (app *AppWebsocket) OnDisconnectHandler(client *WebsocketClient.Client) {
 	app.mutex.Lock()
 	gameId := app.clientGameIds[client.GetId()]
 	app.mutex.Unlock()

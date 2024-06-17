@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type WebsocketApp struct {
+type AppWebsocket struct {
 	client *Client.Client
 
 	clientGameIds map[string]string
@@ -14,17 +14,17 @@ type WebsocketApp struct {
 }
 
 func New(messageBrokerClient *Client.Client, args []string) (Application.WebsocketApplication, error) {
-	return &WebsocketApp{
+	return &AppWebsocket{
 		client: messageBrokerClient,
 
 		clientGameIds: make(map[string]string),
 	}, nil
 }
 
-func (app *WebsocketApp) OnStart() error {
+func (app *AppWebsocket) OnStart() error {
 	return nil
 }
 
-func (app *WebsocketApp) OnStop() error {
+func (app *AppWebsocket) OnStop() error {
 	return nil
 }

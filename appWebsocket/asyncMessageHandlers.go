@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (app *WebsocketApp) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
+func (app *AppWebsocket) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
 	return map[string]Application.AsyncMessageHandler{
 		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
 			gameId := message.GetOrigin()
