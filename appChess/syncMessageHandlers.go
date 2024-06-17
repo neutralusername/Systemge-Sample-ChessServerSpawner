@@ -14,8 +14,7 @@ func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandl
 			if len(segments) != 4 {
 				return "", Utilities.NewError("Invalid message format", nil)
 			}
-			row1, col1, row2, col2 := Utilities.StringToInt(segments[0]), Utilities.StringToInt(segments[1]), Utilities.StringToInt(segments[2]), Utilities.StringToInt(segments[3])
-			chessMove, err := app.Move(message.GetOrigin(), row1, col1, row2, col2)
+			chessMove, err := app.Move(message.GetOrigin(), Utilities.StringToInt(segments[0]), Utilities.StringToInt(segments[1]), Utilities.StringToInt(segments[2]), Utilities.StringToInt(segments[3]))
 			if err != nil {
 				return "", err
 			}
