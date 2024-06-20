@@ -1,11 +1,11 @@
-package appWebsocket
+package appWebsocketHTTP
 
 import (
 	"Systemge/Application"
 	"Systemge/Utilities"
 )
 
-func (app *AppWebsocket) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
+func (app *AppWebsocketHTTP) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
 	return map[string]Application.CustomCommandHandler{
 		"move": func(args []string) error {
 			if len(args) != 6 {

@@ -1,4 +1,4 @@
-package appWebsocket
+package appWebsocketHTTP
 
 import (
 	"Systemge/Application"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
+func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Application.WebsocketMessageHandler {
 	return map[string]Application.WebsocketMessageHandler{
 		"startGame": func(client *WebsocketClient.Client, message *Message.Message) error {
 			app.mutex.Lock()
@@ -70,7 +70,7 @@ func (app *AppWebsocket) GetWebsocketMessageHandlers() map[string]Application.We
 	}
 }
 
-func (app *AppWebsocket) handleMove(gameId, playerId, move string) error {
+func (app *AppWebsocketHTTP) handleMove(gameId, playerId, move string) error {
 	segments := strings.Split(move, " ")
 	if len(segments) != 4 {
 		return Utilities.NewError("Invalid message format", nil)
@@ -84,7 +84,7 @@ func (app *AppWebsocket) handleMove(gameId, playerId, move string) error {
 
 }
 
-func (app *AppWebsocket) OnConnectHandler(client *WebsocketClient.Client) {
+func (app *AppWebsocketHTTP) OnConnectHandler(client *WebsocketClient.Client) {
 	err := client.Send(Message.NewAsync("connected", app.client.GetName(), client.GetId()).Serialize())
 	if err != nil {
 		client.Disconnect()
@@ -92,7 +92,7 @@ func (app *AppWebsocket) OnConnectHandler(client *WebsocketClient.Client) {
 	}
 }
 
-func (app *AppWebsocket) OnDisconnectHandler(client *WebsocketClient.Client) {
+func (app *AppWebsocketHTTP) OnDisconnectHandler(client *WebsocketClient.Client) {
 	app.mutex.Lock()
 	gameId := app.clientGameIds[client.GetId()]
 	app.mutex.Unlock()

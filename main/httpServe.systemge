@@ -1,3 +1,0 @@
-# http
-http :8080
-/ serve ../frontend/
