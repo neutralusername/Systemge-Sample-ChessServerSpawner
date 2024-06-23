@@ -48,6 +48,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Applicatio
 			if err != nil {
 				app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 			}
+			app.client.RemoveTopicResolution(gameId)
 			return nil
 		},
 		"move": func(client *WebsocketClient.Client, message *Message.Message) error {
@@ -103,4 +104,5 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(client *WebsocketClient.Client)
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error sending end message for game: "+gameId, err).Error())
 	}
+	app.client.RemoveTopicResolution(gameId)
 }

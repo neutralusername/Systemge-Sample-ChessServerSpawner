@@ -51,5 +51,5 @@ func main() {
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		clientSpawner,
 		clientWebsocketHTTP,
-	), clientSpawner.GetApplication().GetCustomCommandHandlers(), clientWebsocketHTTP.GetApplication().GetCustomCommandHandlers(), clientWebsocketHTTP.GetWebsocketServer().GetCustomCommandHandlers())
+	), clientSpawner.GetApplication().GetCustomCommandHandlers(), clientWebsocketHTTP.GetApplication().GetCustomCommandHandlers(), clientWebsocketHTTP.GetWebsocketServer().GetCustomCommandHandlers(), clientWebsocketHTTP.GetCustomCommandHandlers())
 }
