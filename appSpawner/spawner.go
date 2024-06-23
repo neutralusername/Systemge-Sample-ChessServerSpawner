@@ -37,8 +37,8 @@ func (app *App) StartClient(id string) error {
 	}
 	newClient := Module.NewClient(&Module.ClientConfig{
 		Name:                   id,
-		ResolverAddress:        app.client.GetResolverResolution().Address,
-		ResolverNameIndication: app.client.GetResolverResolution().ServerNameIndication,
+		ResolverAddress:        app.client.GetResolverResolution().GetAddress(),
+		ResolverNameIndication: app.client.GetResolverResolution().GetServerNameIndication(),
 		ResolverTLSCertPath:    "MyCertificate.crt",
 		LoggerPath:             "error.log",
 	}, appChess.New, nil)
