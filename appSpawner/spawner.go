@@ -36,9 +36,11 @@ func (app *App) StartClient(id string) error {
 		return Utilities.NewError("Client "+id+" already exists", nil)
 	}
 	newClient := Module.NewClient(&Module.ClientConfig{
-		Name:            id,
-		ResolverAddress: app.client.GetTopicResolutionServerAddress(),
-		LoggerPath:      "error.log",
+		Name:                   id,
+		ResolverAddress:        app.client.GetResolverResolution().Address,
+		ResolverNameIndication: app.client.GetResolverResolution().ServerNameIndication,
+		ResolverTLSCertPath:    "MyCertificate.crt",
+		LoggerPath:             "error.log",
 	}, appChess.New, nil)
 	err := app.client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {

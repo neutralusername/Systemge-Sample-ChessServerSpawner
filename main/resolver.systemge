@@ -1,5 +1,5 @@
 # resolver
-resolver :60000
+resolver :60000 ./MyCertificate.crt ./MyKey.key
 config :60001 ./MyCertificate.crt ./MyKey.key
 
 brokerSpawner 127.0.0.1:60005 127.0.0.1 ./MyCertificate.crt new end
