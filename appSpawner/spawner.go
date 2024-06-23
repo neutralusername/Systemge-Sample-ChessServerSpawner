@@ -22,7 +22,7 @@ func (app *App) EndClient(id string) error {
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 	}
-	err = app.client.UnregisterTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = app.client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 	}
@@ -46,7 +46,7 @@ func (app *App) StartClient(id string) error {
 	if err != nil {
 		return Utilities.NewError("Error adding sync topic \""+id+"\"", err)
 	}
-	err = app.client.RegisterTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerChess", id)
+	err = app.client.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerChess", id)
 	if err != nil {
 		err = app.client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
@@ -60,7 +60,7 @@ func (app *App) StartClient(id string) error {
 		if err != nil {
 			app.client.GetLogger().Log(Utilities.NewError("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		err = app.client.UnregisterTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = app.client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
 			app.client.GetLogger().Log(Utilities.NewError("Error unregistering topic \""+id+"\"", err).Error())
 		}
