@@ -39,7 +39,7 @@ func main() {
 		LoggerPath:             ERROR_LOG_FILE_PATH,
 	}, appSpawner.New, nil)
 	clientWebsocketHTTP := Module.NewCompositeClientWebsocketHTTP(&Module.ClientConfig{
-		Name:                   "clientWebsocket",
+		Name:                   "clientWebsocketHTTP",
 		ResolverAddress:        RESOLVER_ADDRESS,
 		ResolverNameIndication: RESOLVER_NAME_INDICATION,
 		ResolverTLSCertPath:    RESOLVER_TLS_CERT_PATH,
