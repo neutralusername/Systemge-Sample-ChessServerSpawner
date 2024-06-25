@@ -34,24 +34,22 @@ func main() {
 		panic(err)
 	}
 	clientSpawner := Module.NewClient(&Client.Config{
-		Name:                       "clientSpawner",
-		ResolverAddress:            RESOLVER_ADDRESS,
-		ResolverNameIndication:     RESOLVER_NAME_INDICATION,
-		ResolverTLSCert:            Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
-		LoggerPath:                 ERROR_LOG_FILE_PATH,
-		HandleMessagesConcurrently: true,
+		Name:                   "clientSpawner",
+		ResolverAddress:        RESOLVER_ADDRESS,
+		ResolverNameIndication: RESOLVER_NAME_INDICATION,
+		ResolverTLSCert:        Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
+		LoggerPath:             ERROR_LOG_FILE_PATH,
 	}, appSpawner.New(), nil, nil)
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
 	clientWebsocketHTTP := Module.NewClient(&Client.Config{
-		Name:                       "clientWebsocketHTTP",
-		ResolverAddress:            RESOLVER_ADDRESS,
-		ResolverNameIndication:     RESOLVER_NAME_INDICATION,
-		ResolverTLSCert:            Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
-		LoggerPath:                 ERROR_LOG_FILE_PATH,
-		WebsocketPattern:           "/ws",
-		WebsocketPort:              WEBSOCKET_PORT,
-		HTTPPort:                   HTTP_PORT,
-		HandleMessagesConcurrently: true,
+		Name:                   "clientWebsocketHTTP",
+		ResolverAddress:        RESOLVER_ADDRESS,
+		ResolverNameIndication: RESOLVER_NAME_INDICATION,
+		ResolverTLSCert:        Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
+		LoggerPath:             ERROR_LOG_FILE_PATH,
+		WebsocketPattern:       "/ws",
+		WebsocketPort:          WEBSOCKET_PORT,
+		HTTPPort:               HTTP_PORT,
 	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		clientSpawner,
