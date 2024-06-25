@@ -25,7 +25,7 @@ func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Client.SyncMess
 				}
 				return "", Utilities.NewError("Error adding \""+ids[1]+"\" to group \""+gameId+"\"", err)
 			}
-			client.Groupcast(gameId, message)
+			client.WebsocketGroupcast(gameId, message)
 			return "", nil
 		},
 	}

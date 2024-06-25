@@ -79,7 +79,7 @@ func (app *AppWebsocketHTTP) handleMove(client *Client.Client, gameId, playerId,
 	if err != nil {
 		return Utilities.NewError("Error sending move message", err)
 	}
-	client.Groupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
+	client.WebsocketGroupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
 	return nil
 
 }

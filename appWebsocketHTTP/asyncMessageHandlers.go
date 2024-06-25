@@ -13,7 +13,7 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Client.AsyncMe
 		topics.PROPAGATE_GAMEEND: func(client *Client.Client, message *Message.Message) error {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
-			client.Groupcast(message.GetOrigin(), message)
+			client.WebsocketGroupcast(message.GetOrigin(), message)
 			err := client.RemoveFromGroup(gameId, ids[0])
 			if err != nil {
 				client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
