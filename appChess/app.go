@@ -1,7 +1,6 @@
 package appChess
 
 import (
-	"Systemge/Application"
 	"Systemge/Client"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/topics"
@@ -10,8 +9,7 @@ import (
 )
 
 type App struct {
-	client *Client.Client
-
+	gameId  string
 	whiteId string
 	blackId string
 	board   [8][8]Piece
@@ -20,13 +18,10 @@ type App struct {
 	mode960 bool
 }
 
-func New(client *Client.Client, args []string) (Application.Application, error) {
-	ids := strings.Split(client.GetName(), "-")
-	if len(ids) != 2 {
-		return nil, Utilities.NewError("Invalid client name", nil)
-	}
+func New(id string) Client.Application {
+	ids := strings.Split(id, "-")
 	app := &App{
-		client:  client,
+		gameId:  id,
 		whiteId: ids[0],
 		blackId: ids[1],
 		mode960: false,
@@ -36,25 +31,25 @@ func New(client *Client.Client, args []string) (Application.Application, error) 
 	} else {
 		app.board = getStandardStartingPosition()
 	}
-	return app, nil
+	return app
 }
 
-func (app *App) OnStart() error {
-	_, err := app.client.SyncMessage(topics.PROPAGATE_GAMESTART, app.client.GetName(), app.marshalBoard())
+func (app *App) OnStart(client *Client.Client) error {
+	_, err := client.SyncMessage(topics.PROPAGATE_GAMESTART, client.GetName(), app.marshalBoard())
 	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error sending sync message", err).Error())
-		err := app.client.AsyncMessage(topics.END, app.client.GetName(), app.client.GetName())
+		client.GetLogger().Log(Utilities.NewError("Error sending sync message", err).Error())
+		err := client.AsyncMessage(topics.END, client.GetName(), client.GetName())
 		if err != nil {
-			app.client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
+			client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
 		}
 	}
 	return nil
 }
 
-func (app *App) OnStop() error {
-	err := app.client.AsyncMessage(topics.PROPAGATE_GAMEEND, app.client.GetName(), "...gameEndData...")
+func (app *App) OnStop(client *Client.Client) error {
+	err := client.AsyncMessage(topics.PROPAGATE_GAMEEND, client.GetName(), "...gameEndData...")
 	if err != nil {
-		app.client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
+		client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
 	}
 	return nil
 }

@@ -1,30 +1,26 @@
 package appSpawner
 
 import (
-	"Systemge/Application"
 	"Systemge/Client"
 	"sync"
 )
 
 type App struct {
-	client *Client.Client
-
 	spawnedClients map[string]*Client.Client
 	mutex          sync.Mutex
 }
 
-func New(client *Client.Client, args []string) (Application.Application, error) {
+func New() Client.Application {
 	app := &App{
-		client:         client,
 		spawnedClients: make(map[string]*Client.Client),
 	}
-	return app, nil
+	return app
 }
 
-func (app *App) OnStart() error {
+func (app *App) OnStart(client *Client.Client) error {
 	return nil
 }
 
-func (app *App) OnStop() error {
+func (app *App) OnStop(client *Client.Client) error {
 	return nil
 }

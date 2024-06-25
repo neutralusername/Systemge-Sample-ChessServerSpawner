@@ -1,7 +1,9 @@
 package appChess
 
-import "Systemge/Application"
+import (
+	"Systemge/Client"
+)
 
-func (app *App) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{}
+func (app *App) GetAsyncMessageHandlers() map[string]Client.AsyncMessageHandler {
+	return map[string]Client.AsyncMessageHandler{}
 }

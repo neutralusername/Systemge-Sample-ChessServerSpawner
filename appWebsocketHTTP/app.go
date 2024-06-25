@@ -1,30 +1,25 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Application"
 	"Systemge/Client"
 	"sync"
 )
 
 type AppWebsocketHTTP struct {
-	client *Client.Client
-
 	clientGameIds map[string]string
 	mutex         sync.Mutex
 }
 
-func New(messageBrokerClient *Client.Client, args []string) (Application.CompositeApplicationWebsocketHTTP, error) {
+func New() Client.CompositeApplicationWebsocketHTTP {
 	return &AppWebsocketHTTP{
-		client: messageBrokerClient,
-
 		clientGameIds: make(map[string]string),
-	}, nil
+	}
 }
 
-func (app *AppWebsocketHTTP) OnStart() error {
+func (app *AppWebsocketHTTP) OnStart(client *Client.Client) error {
 	return nil
 }
 
-func (app *AppWebsocketHTTP) OnStop() error {
+func (app *AppWebsocketHTTP) OnStop(client *Client.Client) error {
 	return nil
 }

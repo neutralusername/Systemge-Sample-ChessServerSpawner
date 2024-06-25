@@ -1,9 +1,7 @@
 package appChess
 
-import (
-	"Systemge/Application"
-)
+import "Systemge/Client"
 
-func (app *App) GetCustomCommandHandlers() map[string]Application.CustomCommandHandler {
-	return map[string]Application.CustomCommandHandler{}
+func (app *App) GetCustomCommandHandlers() map[string]Client.CustomCommandHandler {
+	return map[string]Client.CustomCommandHandler{}
 }

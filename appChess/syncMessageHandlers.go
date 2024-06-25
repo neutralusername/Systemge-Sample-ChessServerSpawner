@@ -1,15 +1,15 @@
 package appChess
 
 import (
-	"Systemge/Application"
+	"Systemge/Client"
 	"Systemge/Message"
 	"Systemge/Utilities"
 	"strings"
 )
 
-func (app *App) GetSyncMessageHandlers() map[string]Application.SyncMessageHandler {
-	return map[string]Application.SyncMessageHandler{
-		app.client.GetName(): func(message *Message.Message) (string, error) {
+func (app *App) GetSyncMessageHandlers() map[string]Client.SyncMessageHandler {
+	return map[string]Client.SyncMessageHandler{
+		app.gameId: func(client *Client.Client, message *Message.Message) (string, error) {
 			segments := strings.Split(message.GetPayload(), " ")
 			if len(segments) != 4 {
 				return "", Utilities.NewError("Invalid message format", nil)

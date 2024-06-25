@@ -1,7 +1,9 @@
 package main
 
 import (
+	"Systemge/Client"
 	"Systemge/Module"
+	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appSpawner"
 	"SystemgeSampleChessServer/appWebsocketHTTP"
 )
@@ -31,25 +33,28 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientSpawner := Module.NewClient(&Module.ClientConfig{
-		Name:                   "clientSpawner",
-		ResolverAddress:        RESOLVER_ADDRESS,
-		ResolverNameIndication: RESOLVER_NAME_INDICATION,
-		ResolverTLSCertPath:    RESOLVER_TLS_CERT_PATH,
-		LoggerPath:             ERROR_LOG_FILE_PATH,
-	}, appSpawner.New, nil)
-	clientWebsocketHTTP := Module.NewCompositeClientWebsocketHTTP(&Module.ClientConfig{
-		Name:                   "clientWebsocketHTTP",
-		ResolverAddress:        RESOLVER_ADDRESS,
-		ResolverNameIndication: RESOLVER_NAME_INDICATION,
-		ResolverTLSCertPath:    RESOLVER_TLS_CERT_PATH,
-		LoggerPath:             ERROR_LOG_FILE_PATH,
-		WebsocketPattern:       "/ws",
-		WebsocketPort:          WEBSOCKET_PORT,
-		HTTPPort:               HTTP_PORT,
-	}, appWebsocketHTTP.New, nil)
+	clientSpawner := Module.NewClient(&Client.Config{
+		Name:                       "clientSpawner",
+		ResolverAddress:            RESOLVER_ADDRESS,
+		ResolverNameIndication:     RESOLVER_NAME_INDICATION,
+		ResolverTLSCert:            Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
+		LoggerPath:                 ERROR_LOG_FILE_PATH,
+		HandleMessagesConcurrently: true,
+	}, appSpawner.New(), nil, nil)
+	applicationWebsocketHTTP := appWebsocketHTTP.New()
+	clientWebsocketHTTP := Module.NewClient(&Client.Config{
+		Name:                       "clientWebsocketHTTP",
+		ResolverAddress:            RESOLVER_ADDRESS,
+		ResolverNameIndication:     RESOLVER_NAME_INDICATION,
+		ResolverTLSCert:            Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
+		LoggerPath:                 ERROR_LOG_FILE_PATH,
+		WebsocketPattern:           "/ws",
+		WebsocketPort:              WEBSOCKET_PORT,
+		HTTPPort:                   HTTP_PORT,
+		HandleMessagesConcurrently: true,
+	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		clientSpawner,
 		clientWebsocketHTTP,
-	), clientSpawner.GetApplication().GetCustomCommandHandlers(), clientWebsocketHTTP.GetApplication().GetCustomCommandHandlers(), clientWebsocketHTTP.GetWebsocketServer().GetCustomCommandHandlers(), clientWebsocketHTTP.GetCustomCommandHandlers())
+	))
 }

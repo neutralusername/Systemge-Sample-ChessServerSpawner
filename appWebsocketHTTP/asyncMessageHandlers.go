@@ -1,26 +1,26 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Application"
+	"Systemge/Client"
 	"Systemge/Message"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 )
 
-func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Application.AsyncMessageHandler {
-	return map[string]Application.AsyncMessageHandler{
-		topics.PROPAGATE_GAMEEND: func(message *Message.Message) error {
+func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Client.AsyncMessageHandler {
+	return map[string]Client.AsyncMessageHandler{
+		topics.PROPAGATE_GAMEEND: func(client *Client.Client, message *Message.Message) error {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
-			app.client.GetWebsocketServer().Groupcast(message.GetOrigin(), message)
-			err := app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[0])
+			client.Groupcast(message.GetOrigin(), message)
+			err := client.RemoveFromGroup(gameId, ids[0])
 			if err != nil {
-				app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+				client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
 			}
-			err = app.client.GetWebsocketServer().RemoveFromGroup(gameId, ids[1])
+			err = client.RemoveFromGroup(gameId, ids[1])
 			if err != nil {
-				app.client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+				client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
 			}
 			app.mutex.Lock()
 			delete(app.clientGameIds, ids[0])
