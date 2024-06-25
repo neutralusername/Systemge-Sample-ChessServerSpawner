@@ -2,8 +2,8 @@ package appSpawner
 
 import (
 	"Systemge/Client"
+	"Systemge/Error"
 	"Systemge/Message"
-	"Systemge/Utilities"
 	"SystemgeSampleChessServer/topics"
 )
 
@@ -17,7 +17,7 @@ func (app *App) New(client *Client.Client, message *Message.Message) (string, er
 	id := message.GetPayload()
 	err := app.StartClient(client, id)
 	if err != nil {
-		return "", Utilities.NewError("Error starting client "+id, err)
+		return "", Error.New("Error starting client "+id, err)
 	}
 	return id, nil
 }

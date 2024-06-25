@@ -2,7 +2,7 @@ package appChess
 
 import (
 	"Systemge/Client"
-	"Systemge/Utilities"
+	"Systemge/Error"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 	"sync"
@@ -37,10 +37,10 @@ func New(id string) Client.Application {
 func (app *App) OnStart(client *Client.Client) error {
 	_, err := client.SyncMessage(topics.PROPAGATE_GAMESTART, client.GetName(), app.marshalBoard())
 	if err != nil {
-		client.GetLogger().Log(Utilities.NewError("Error sending sync message", err).Error())
+		client.GetLogger().Log(Error.New("Error sending sync message", err).Error())
 		err := client.AsyncMessage(topics.END, client.GetName(), client.GetName())
 		if err != nil {
-			client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
+			client.GetLogger().Log(Error.New("Error sending async message", err).Error())
 		}
 	}
 	return nil
@@ -49,7 +49,7 @@ func (app *App) OnStart(client *Client.Client) error {
 func (app *App) OnStop(client *Client.Client) error {
 	err := client.AsyncMessage(topics.PROPAGATE_GAMEEND, client.GetName(), "...gameEndData...")
 	if err != nil {
-		client.GetLogger().Log(Utilities.NewError("Error sending async message", err).Error())
+		client.GetLogger().Log(Error.New("Error sending async message", err).Error())
 	}
 	return nil
 }
