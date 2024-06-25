@@ -14,11 +14,11 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Client.AsyncMe
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
 			client.WebsocketGroupcast(message.GetOrigin(), message)
-			err := client.RemoveFromGroup(gameId, ids[0])
+			err := client.RemoveFromWebsocketGroup(gameId, ids[0])
 			if err != nil {
 				client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
 			}
-			err = client.RemoveFromGroup(gameId, ids[1])
+			err = client.RemoveFromWebsocketGroup(gameId, ids[1])
 			if err != nil {
 				client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
 			}

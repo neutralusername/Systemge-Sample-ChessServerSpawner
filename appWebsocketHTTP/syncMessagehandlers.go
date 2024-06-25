@@ -13,13 +13,13 @@ func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Client.SyncMess
 		topics.PROPAGATE_GAMESTART: func(client *Client.Client, message *Message.Message) (string, error) {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
-			err := client.AddToGroup(gameId, ids[0])
+			err := client.AddToWebsocketGroup(gameId, ids[0])
 			if err != nil {
 				return "", Utilities.NewError("Error adding \""+ids[0]+"\" to group \""+gameId+"\"", err)
 			}
-			err = client.AddToGroup(gameId, ids[1])
+			err = client.AddToWebsocketGroup(gameId, ids[1])
 			if err != nil {
-				err := client.RemoveFromGroup(gameId, ids[0])
+				err := client.RemoveFromWebsocketGroup(gameId, ids[0])
 				if err != nil {
 					client.GetLogger().Log(Utilities.NewError("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
 				}
