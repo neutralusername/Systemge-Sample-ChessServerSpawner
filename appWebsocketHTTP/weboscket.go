@@ -10,50 +10,50 @@ import (
 
 func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.WebsocketMessageHandler {
 	return map[string]Node.WebsocketMessageHandler{
-		"startGame": func(client *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
+		"startGame": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
 			whiteId := websocketClient.GetId()
 			blackId := message.GetPayload()
-			if !client.ClientExists(blackId) {
+			if !node.WebsocketClientExists(blackId) {
 				return Error.New("Opponent does not exist", nil)
 			}
 			if blackId == whiteId {
 				return Error.New("You cannot play against yourself", nil)
 			}
-			if app.clientGameIds[whiteId] != "" {
+			if app.nodeIds[whiteId] != "" {
 				return Error.New("You are already in a game", nil)
 			}
-			if app.clientGameIds[blackId] != "" {
+			if app.nodeIds[blackId] != "" {
 				return Error.New("Opponent is already in a game", nil)
 			}
 			gameId := whiteId + "-" + blackId
-			_, err := client.SyncMessage(topics.NEW, client.GetName(), gameId)
+			_, err := node.SyncMessage(topics.NEW, node.GetName(), gameId)
 			if err != nil {
 				return Error.New("Error spawning new game client", err)
 			}
-			app.clientGameIds[whiteId] = gameId
-			app.clientGameIds[blackId] = gameId
+			app.nodeIds[whiteId] = gameId
+			app.nodeIds[blackId] = gameId
 			return nil
 		},
-		"endGame": func(client *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
+		"endGame": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
-			gameId := app.clientGameIds[websocketClient.GetId()]
+			gameId := app.nodeIds[websocketClient.GetId()]
 			app.mutex.Unlock()
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			err := client.AsyncMessage(topics.END, client.GetName(), gameId)
+			err := node.AsyncMessage(topics.END, node.GetName(), gameId)
 			if err != nil {
-				client.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
+				node.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
 			}
-			client.RemoveTopicResolution(gameId)
+			node.RemoveTopicResolution(gameId)
 			return nil
 		},
-		"move": func(client *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
+		"move": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
-			gameId := app.clientGameIds[websocketClient.GetId()]
+			gameId := app.nodeIds[websocketClient.GetId()]
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
@@ -61,7 +61,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if len(moveSegments) != 4 {
 				return Error.New("Invalid move format", nil)
 			}
-			err := app.handleMove(client, gameId, websocketClient.GetId(), message.GetPayload())
+			err := app.handleMove(node, gameId, websocketClient.GetId(), message.GetPayload())
 			if err != nil {
 				return Error.New("Error handling move", err)
 			}
@@ -70,38 +70,38 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 	}
 }
 
-func (app *AppWebsocketHTTP) handleMove(client *Node.Node, gameId, playerId, move string) error {
+func (app *AppWebsocketHTTP) handleMove(node *Node.Node, gameId, playerId, move string) error {
 	segments := strings.Split(move, " ")
 	if len(segments) != 4 {
 		return Error.New("Invalid message format", nil)
 	}
-	responseMessage, err := client.SyncMessage(gameId, playerId, move)
+	responseMessage, err := node.SyncMessage(gameId, playerId, move)
 	if err != nil {
 		return Error.New("Error sending move message", err)
 	}
-	client.WebsocketGroupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
+	node.WebsocketGroupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
 	return nil
 
 }
 
-func (app *AppWebsocketHTTP) OnConnectHandler(client *Node.Node, websocketClient *Node.WebsocketClient) {
-	err := websocketClient.Send(Message.NewAsync("connected", client.GetName(), websocketClient.GetId()).Serialize())
+func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
+	err := websocketClient.Send(Message.NewAsync("connected", node.GetName(), websocketClient.GetId()).Serialize())
 	if err != nil {
 		websocketClient.Disconnect()
-		client.GetLogger().Log(Error.New("Error sending connected message", err).Error())
+		node.GetLogger().Log(Error.New("Error sending connected message", err).Error())
 	}
 }
 
-func (app *AppWebsocketHTTP) OnDisconnectHandler(client *Node.Node, websocketClient *Node.WebsocketClient) {
+func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
 	app.mutex.Lock()
-	gameId := app.clientGameIds[websocketClient.GetId()]
+	gameId := app.nodeIds[websocketClient.GetId()]
 	app.mutex.Unlock()
 	if gameId == "" {
 		return
 	}
-	err := client.AsyncMessage(topics.END, client.GetName(), gameId)
+	err := node.AsyncMessage(topics.END, node.GetName(), gameId)
 	if err != nil {
-		client.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
+		node.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
 	}
-	client.RemoveTopicResolution(gameId)
+	node.RemoveTopicResolution(gameId)
 }

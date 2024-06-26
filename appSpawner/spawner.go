@@ -37,7 +37,7 @@ func (app *App) StartClient(client *Node.Node, id string) error {
 	if _, ok := app.spawnedClients[id]; ok {
 		return Error.New("Node "+id+" already exists", nil)
 	}
-	newClient := Module.NewClient(&Node.Config{
+	newClient := Module.NewNode(&Node.Config{
 		Name:                   id,
 		ResolverAddress:        client.GetResolverAddress(),
 		ResolverNameIndication: client.GetResolverNameIndication(),

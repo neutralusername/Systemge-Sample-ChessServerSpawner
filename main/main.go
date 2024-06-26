@@ -33,16 +33,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientSpawner := Module.NewClient(&Node.Config{
-		Name:                   "clientSpawner",
+	nodeSpawner := Module.NewNode(&Node.Config{
+		Name:                   "nodeSpawner",
 		ResolverAddress:        RESOLVER_ADDRESS,
 		ResolverNameIndication: RESOLVER_NAME_INDICATION,
 		ResolverTLSCert:        Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
 		LoggerPath:             ERROR_LOG_FILE_PATH,
 	}, appSpawner.New(), nil, nil)
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
-	clientWebsocketHTTP := Module.NewClient(&Node.Config{
-		Name:                   "clientWebsocketHTTP",
+	nodeWebsocketHTTP := Module.NewNode(&Node.Config{
+		Name:                   "nodeWebsocketHTTP",
 		ResolverAddress:        RESOLVER_ADDRESS,
 		ResolverNameIndication: RESOLVER_NAME_INDICATION,
 		ResolverTLSCert:        Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
@@ -52,7 +52,7 @@ func main() {
 		HTTPPort:               HTTP_PORT,
 	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
-		clientSpawner,
-		clientWebsocketHTTP,
+		nodeSpawner,
+		nodeWebsocketHTTP,
 	))
 }

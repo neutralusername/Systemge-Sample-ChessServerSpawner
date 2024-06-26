@@ -10,21 +10,21 @@ import (
 
 func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
 	return map[string]Node.AsyncMessageHandler{
-		topics.PROPAGATE_GAMEEND: func(client *Node.Node, message *Message.Message) error {
+		topics.PROPAGATE_GAMEEND: func(node *Node.Node, message *Message.Message) error {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
-			client.WebsocketGroupcast(message.GetOrigin(), message)
-			err := client.RemoveFromWebsocketGroup(gameId, ids[0])
+			node.WebsocketGroupcast(message.GetOrigin(), message)
+			err := node.RemoveFromWebsocketGroup(gameId, ids[0])
 			if err != nil {
-				client.GetLogger().Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+				node.GetLogger().Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
 			}
-			err = client.RemoveFromWebsocketGroup(gameId, ids[1])
+			err = node.RemoveFromWebsocketGroup(gameId, ids[1])
 			if err != nil {
-				client.GetLogger().Log(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+				node.GetLogger().Log(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
 			}
 			app.mutex.Lock()
-			delete(app.clientGameIds, ids[0])
-			delete(app.clientGameIds, ids[1])
+			delete(app.nodeIds, ids[0])
+			delete(app.nodeIds, ids[1])
 			app.mutex.Unlock()
 			return nil
 		},

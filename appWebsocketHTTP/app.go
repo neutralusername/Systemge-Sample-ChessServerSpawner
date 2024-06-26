@@ -6,20 +6,20 @@ import (
 )
 
 type AppWebsocketHTTP struct {
-	clientGameIds map[string]string
-	mutex         sync.Mutex
+	nodeIds map[string]string
+	mutex   sync.Mutex
 }
 
 func New() Node.WebsocketHTTPApplication {
 	return &AppWebsocketHTTP{
-		clientGameIds: make(map[string]string),
+		nodeIds: make(map[string]string),
 	}
 }
 
-func (app *AppWebsocketHTTP) OnStart(client *Node.Node) error {
+func (app *AppWebsocketHTTP) OnStart(node *Node.Node) error {
 	return nil
 }
 
-func (app *AppWebsocketHTTP) OnStop(client *Node.Node) error {
+func (app *AppWebsocketHTTP) OnStop(node *Node.Node) error {
 	return nil
 }
