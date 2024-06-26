@@ -6,21 +6,21 @@ import (
 )
 
 type App struct {
-	spawnedClients map[string]*Node.Node
-	mutex          sync.Mutex
+	spawnedNodes map[string]*Node.Node
+	mutex        sync.Mutex
 }
 
 func New() Node.Application {
 	app := &App{
-		spawnedClients: make(map[string]*Node.Node),
+		spawnedNodes: make(map[string]*Node.Node),
 	}
 	return app
 }
 
-func (app *App) OnStart(client *Node.Node) error {
+func (app *App) OnStart(node *Node.Node) error {
 	return nil
 }
 
-func (app *App) OnStop(client *Node.Node) error {
+func (app *App) OnStop(node *Node.Node) error {
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 
 func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 	return map[string]Node.SyncMessageHandler{
-		app.gameId: func(client *Node.Node, message *Message.Message) (string, error) {
+		app.gameId: func(node *Node.Node, message *Message.Message) (string, error) {
 			segments := strings.Split(message.GetPayload(), " ")
 			if len(segments) != 4 {
 				return "", Error.New("Invalid message format", nil)

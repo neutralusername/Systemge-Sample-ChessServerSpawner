@@ -8,10 +8,10 @@ import (
 	"SystemgeSampleChessServer/appChess"
 )
 
-func (app *App) EndClient(client *Node.Node, id string) error {
+func (app *App) EndNode(client *Node.Node, id string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	spawnedClient := app.spawnedClients[id]
+	spawnedClient := app.spawnedNodes[id]
 	if spawnedClient == nil {
 		return Error.New("Node "+id+" does not exist", nil)
 	}
@@ -19,7 +19,7 @@ func (app *App) EndClient(client *Node.Node, id string) error {
 	if err != nil {
 		return Error.New("Error stopping client "+id, err)
 	}
-	delete(app.spawnedClients, id)
+	delete(app.spawnedNodes, id)
 	err = client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		client.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
@@ -34,7 +34,7 @@ func (app *App) EndClient(client *Node.Node, id string) error {
 func (app *App) StartClient(client *Node.Node, id string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	if _, ok := app.spawnedClients[id]; ok {
+	if _, ok := app.spawnedNodes[id]; ok {
 		return Error.New("Node "+id+" already exists", nil)
 	}
 	newClient := Module.NewNode(&Node.Config{
@@ -68,6 +68,6 @@ func (app *App) StartClient(client *Node.Node, id string) error {
 		}
 		return Error.New("Error starting client", err)
 	}
-	app.spawnedClients[id] = newClient
+	app.spawnedNodes[id] = newClient
 	return nil
 }

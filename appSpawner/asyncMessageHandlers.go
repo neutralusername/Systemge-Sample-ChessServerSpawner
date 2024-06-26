@@ -13,11 +13,11 @@ func (app *App) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
 	}
 }
 
-func (app *App) End(client *Node.Node, message *Message.Message) error {
+func (app *App) End(node *Node.Node, message *Message.Message) error {
 	id := message.GetPayload()
-	err := app.EndClient(client, id)
+	err := app.EndNode(node, id)
 	if err != nil {
-		return Error.New("Error ending client "+id, err)
+		return Error.New("Error ending node "+id, err)
 	}
 	return nil
 }

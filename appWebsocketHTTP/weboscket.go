@@ -30,7 +30,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			gameId := whiteId + "-" + blackId
 			_, err := node.SyncMessage(topics.NEW, node.GetName(), gameId)
 			if err != nil {
-				return Error.New("Error spawning new game client", err)
+				return Error.New("Error spawning new game node", err)
 			}
 			app.nodeIds[whiteId] = gameId
 			app.nodeIds[blackId] = gameId

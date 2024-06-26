@@ -7,28 +7,28 @@ import (
 
 func (app *App) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler {
 	return map[string]Node.CustomCommandHandler{
-		"spawnedClients":   app.activeClients,
-		"endSpawnedClient": app.endClient,
+		"spawnedNodes":   app.activeNodes,
+		"endSpawnedNode": app.endNode,
 	}
 }
 
-func (app *App) activeClients(client *Node.Node, args []string) error {
+func (app *App) activeNodes(node *Node.Node, args []string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	for id := range app.spawnedClients {
+	for id := range app.spawnedNodes {
 		println(id)
 	}
 	return nil
 }
 
-func (app *App) endClient(client *Node.Node, args []string) error {
+func (app *App) endNode(node *Node.Node, args []string) error {
 	if len(args) != 1 {
-		return Error.New("No client id provided", nil)
+		return Error.New("No nodeId provided", nil)
 	}
 	id := args[0]
-	err := app.EndClient(client, id)
+	err := app.EndNode(node, id)
 	if err != nil {
-		return Error.New("Error ending client "+id, err)
+		return Error.New("Error ending node "+id, err)
 	}
 	return nil
 }
