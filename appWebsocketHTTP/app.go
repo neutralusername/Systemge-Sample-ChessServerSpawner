@@ -10,7 +10,7 @@ type AppWebsocketHTTP struct {
 	mutex         sync.Mutex
 }
 
-func New() Client.CompositeApplicationWebsocketHTTP {
+func New() Client.WebsocketHTTPApplication {
 	return &AppWebsocketHTTP{
 		clientGameIds: make(map[string]string),
 	}
