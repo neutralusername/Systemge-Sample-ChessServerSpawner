@@ -1,16 +1,16 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Client"
 	"Systemge/Error"
 	"Systemge/Message"
+	"Systemge/Node"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 )
 
-func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Client.AsyncMessageHandler {
-	return map[string]Client.AsyncMessageHandler{
-		topics.PROPAGATE_GAMEEND: func(client *Client.Client, message *Message.Message) error {
+func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
+	return map[string]Node.AsyncMessageHandler{
+		topics.PROPAGATE_GAMEEND: func(client *Node.Node, message *Message.Message) error {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
 			client.WebsocketGroupcast(message.GetOrigin(), message)

@@ -1,7 +1,7 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Client"
+	"Systemge/Node"
 	"sync"
 )
 
@@ -10,16 +10,16 @@ type AppWebsocketHTTP struct {
 	mutex         sync.Mutex
 }
 
-func New() Client.WebsocketHTTPApplication {
+func New() Node.WebsocketHTTPApplication {
 	return &AppWebsocketHTTP{
 		clientGameIds: make(map[string]string),
 	}
 }
 
-func (app *AppWebsocketHTTP) OnStart(client *Client.Client) error {
+func (app *AppWebsocketHTTP) OnStart(client *Node.Node) error {
 	return nil
 }
 
-func (app *AppWebsocketHTTP) OnStop(client *Client.Client) error {
+func (app *AppWebsocketHTTP) OnStop(client *Node.Node) error {
 	return nil
 }

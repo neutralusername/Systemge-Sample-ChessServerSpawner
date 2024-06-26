@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Systemge/Client"
 	"Systemge/Module"
+	"Systemge/Node"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appSpawner"
 	"SystemgeSampleChessServer/appWebsocketHTTP"
@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientSpawner := Module.NewClient(&Client.Config{
+	clientSpawner := Module.NewClient(&Node.Config{
 		Name:                   "clientSpawner",
 		ResolverAddress:        RESOLVER_ADDRESS,
 		ResolverNameIndication: RESOLVER_NAME_INDICATION,
@@ -41,7 +41,7 @@ func main() {
 		LoggerPath:             ERROR_LOG_FILE_PATH,
 	}, appSpawner.New(), nil, nil)
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
-	clientWebsocketHTTP := Module.NewClient(&Client.Config{
+	clientWebsocketHTTP := Module.NewClient(&Node.Config{
 		Name:                   "clientWebsocketHTTP",
 		ResolverAddress:        RESOLVER_ADDRESS,
 		ResolverNameIndication: RESOLVER_NAME_INDICATION,

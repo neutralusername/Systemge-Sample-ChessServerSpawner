@@ -1,8 +1,8 @@
 package appChess
 
 import (
-	"Systemge/Client"
 	"Systemge/Error"
+	"Systemge/Node"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 	"sync"
@@ -18,7 +18,7 @@ type App struct {
 	mode960 bool
 }
 
-func New(id string) Client.Application {
+func New(id string) Node.Application {
 	ids := strings.Split(id, "-")
 	app := &App{
 		gameId:  id,
@@ -34,7 +34,7 @@ func New(id string) Client.Application {
 	return app
 }
 
-func (app *App) OnStart(client *Client.Client) error {
+func (app *App) OnStart(client *Node.Node) error {
 	_, err := client.SyncMessage(topics.PROPAGATE_GAMESTART, client.GetName(), app.marshalBoard())
 	if err != nil {
 		client.GetLogger().Log(Error.New("Error sending sync message", err).Error())
@@ -46,7 +46,7 @@ func (app *App) OnStart(client *Client.Client) error {
 	return nil
 }
 
-func (app *App) OnStop(client *Client.Client) error {
+func (app *App) OnStop(client *Node.Node) error {
 	err := client.AsyncMessage(topics.PROPAGATE_GAMEEND, client.GetName(), "...gameEndData...")
 	if err != nil {
 		client.GetLogger().Log(Error.New("Error sending async message", err).Error())

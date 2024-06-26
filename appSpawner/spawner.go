@@ -1,19 +1,19 @@
 package appSpawner
 
 import (
-	"Systemge/Client"
 	"Systemge/Error"
 	"Systemge/Module"
+	"Systemge/Node"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appChess"
 )
 
-func (app *App) EndClient(client *Client.Client, id string) error {
+func (app *App) EndClient(client *Node.Node, id string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	spawnedClient := app.spawnedClients[id]
 	if spawnedClient == nil {
-		return Error.New("Client "+id+" does not exist", nil)
+		return Error.New("Node "+id+" does not exist", nil)
 	}
 	err := spawnedClient.Stop()
 	if err != nil {
@@ -31,13 +31,13 @@ func (app *App) EndClient(client *Client.Client, id string) error {
 	return nil
 }
 
-func (app *App) StartClient(client *Client.Client, id string) error {
+func (app *App) StartClient(client *Node.Node, id string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	if _, ok := app.spawnedClients[id]; ok {
-		return Error.New("Client "+id+" already exists", nil)
+		return Error.New("Node "+id+" already exists", nil)
 	}
-	newClient := Module.NewClient(&Client.Config{
+	newClient := Module.NewClient(&Node.Config{
 		Name:                   id,
 		ResolverAddress:        client.GetResolverAddress(),
 		ResolverNameIndication: client.GetResolverNameIndication(),

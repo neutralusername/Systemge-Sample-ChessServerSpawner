@@ -1,13 +1,13 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Client"
 	"Systemge/Error"
+	"Systemge/Node"
 )
 
-func (app *AppWebsocketHTTP) GetCustomCommandHandlers() map[string]Client.CustomCommandHandler {
-	return map[string]Client.CustomCommandHandler{
-		"move": func(client *Client.Client, args []string) error {
+func (app *AppWebsocketHTTP) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler {
+	return map[string]Node.CustomCommandHandler{
+		"move": func(client *Node.Node, args []string) error {
 			if len(args) != 6 {
 				return Error.New("Invalid move command", nil)
 			}

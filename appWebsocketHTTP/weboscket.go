@@ -1,16 +1,16 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Client"
 	"Systemge/Error"
 	"Systemge/Message"
+	"Systemge/Node"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 )
 
-func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Client.WebsocketMessageHandler {
-	return map[string]Client.WebsocketMessageHandler{
-		"startGame": func(client *Client.Client, websocketClient *Client.WebsocketClient, message *Message.Message) error {
+func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.WebsocketMessageHandler {
+	return map[string]Node.WebsocketMessageHandler{
+		"startGame": func(client *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
 			whiteId := websocketClient.GetId()
@@ -36,7 +36,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Client.Web
 			app.clientGameIds[blackId] = gameId
 			return nil
 		},
-		"endGame": func(client *Client.Client, websocketClient *Client.WebsocketClient, message *Message.Message) error {
+		"endGame": func(client *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
 			gameId := app.clientGameIds[websocketClient.GetId()]
 			app.mutex.Unlock()
@@ -50,7 +50,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Client.Web
 			client.RemoveTopicResolution(gameId)
 			return nil
 		},
-		"move": func(client *Client.Client, websocketClient *Client.WebsocketClient, message *Message.Message) error {
+		"move": func(client *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
 			gameId := app.clientGameIds[websocketClient.GetId()]
@@ -70,7 +70,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Client.Web
 	}
 }
 
-func (app *AppWebsocketHTTP) handleMove(client *Client.Client, gameId, playerId, move string) error {
+func (app *AppWebsocketHTTP) handleMove(client *Node.Node, gameId, playerId, move string) error {
 	segments := strings.Split(move, " ")
 	if len(segments) != 4 {
 		return Error.New("Invalid message format", nil)
@@ -84,7 +84,7 @@ func (app *AppWebsocketHTTP) handleMove(client *Client.Client, gameId, playerId,
 
 }
 
-func (app *AppWebsocketHTTP) OnConnectHandler(client *Client.Client, websocketClient *Client.WebsocketClient) {
+func (app *AppWebsocketHTTP) OnConnectHandler(client *Node.Node, websocketClient *Node.WebsocketClient) {
 	err := websocketClient.Send(Message.NewAsync("connected", client.GetName(), websocketClient.GetId()).Serialize())
 	if err != nil {
 		websocketClient.Disconnect()
@@ -92,7 +92,7 @@ func (app *AppWebsocketHTTP) OnConnectHandler(client *Client.Client, websocketCl
 	}
 }
 
-func (app *AppWebsocketHTTP) OnDisconnectHandler(client *Client.Client, websocketClient *Client.WebsocketClient) {
+func (app *AppWebsocketHTTP) OnDisconnectHandler(client *Node.Node, websocketClient *Node.WebsocketClient) {
 	app.mutex.Lock()
 	gameId := app.clientGameIds[websocketClient.GetId()]
 	app.mutex.Unlock()
