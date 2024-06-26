@@ -8,66 +8,66 @@ import (
 	"SystemgeSampleChessServer/appChess"
 )
 
-func (app *App) EndNode(client *Node.Node, id string) error {
+func (app *App) EndNode(node *Node.Node, id string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	spawnedClient := app.spawnedNodes[id]
-	if spawnedClient == nil {
+	spawnedNode := app.spawnedNodes[id]
+	if spawnedNode == nil {
 		return Error.New("Node "+id+" does not exist", nil)
 	}
-	err := spawnedClient.Stop()
+	err := spawnedNode.Stop()
 	if err != nil {
-		return Error.New("Error stopping client "+id, err)
+		return Error.New("Error stopping node "+id, err)
 	}
 	delete(app.spawnedNodes, id)
-	err = client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = node.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		client.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
+		node.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
 	}
-	err = client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
-		client.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
+		node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 	}
 	return nil
 }
 
-func (app *App) StartClient(client *Node.Node, id string) error {
+func (app *App) StartNode(node *Node.Node, id string) error {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 	if _, ok := app.spawnedNodes[id]; ok {
 		return Error.New("Node "+id+" already exists", nil)
 	}
-	newClient := Module.NewNode(&Node.Config{
+	newNode := Module.NewNode(&Node.Config{
 		Name:                   id,
-		ResolverAddress:        client.GetResolverAddress(),
-		ResolverNameIndication: client.GetResolverNameIndication(),
-		ResolverTLSCert:        client.GetResolverTLSCert(),
+		ResolverAddress:        node.GetResolverAddress(),
+		ResolverNameIndication: node.GetResolverNameIndication(),
+		ResolverTLSCert:        node.GetResolverTLSCert(),
 		LoggerPath:             "error.log",
 	}, appChess.New(id), nil, nil)
-	err := client.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err := node.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		return Error.New("Error adding sync topic \""+id+"\"", err)
 	}
-	err = client.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerChess", id)
+	err = node.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerChess", id)
 	if err != nil {
-		err = client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
+			node.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
 		}
 		return Error.New("Error registering topic", err)
 	}
-	err = newClient.Start()
+	err = newNode.Start()
 	if err != nil {
-		err = client.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
+			node.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		err = client.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
-			client.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
+			node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 		}
-		return Error.New("Error starting client", err)
+		return Error.New("Error starting node", err)
 	}
-	app.spawnedNodes[id] = newClient
+	app.spawnedNodes[id] = newNode
 	return nil
 }

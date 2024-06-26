@@ -13,11 +13,11 @@ func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 	}
 }
 
-func (app *App) New(client *Node.Node, message *Message.Message) (string, error) {
+func (app *App) New(node *Node.Node, message *Message.Message) (string, error) {
 	id := message.GetPayload()
-	err := app.StartClient(client, id)
+	err := app.StartNode(node, id)
 	if err != nil {
-		return "", Error.New("Error starting client "+id, err)
+		return "", Error.New("Error starting node "+id, err)
 	}
 	return id, nil
 }
