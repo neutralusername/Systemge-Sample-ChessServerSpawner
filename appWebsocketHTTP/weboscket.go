@@ -105,3 +105,12 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	}
 	node.RemoveTopicResolution(gameId)
 }
+
+func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() Node.WebsocketComponentConfig {
+	return Node.WebsocketComponentConfig{
+		Pattern:     "/ws",
+		Port:        ":8443",
+		TlsCertPath: "",
+		TlsKeyPath:  "",
+	}
+}

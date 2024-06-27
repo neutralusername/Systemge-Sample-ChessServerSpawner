@@ -3,7 +3,6 @@ package main
 import (
 	"Systemge/Module"
 	"Systemge/Node"
-	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appSpawner"
 	"SystemgeSampleChessServer/appWebsocketHTTP"
 )
@@ -33,23 +32,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	nodeSpawner := Module.NewNode(&Node.Config{
-		Name:                   "nodeSpawner",
-		ResolverAddress:        RESOLVER_ADDRESS,
-		ResolverNameIndication: RESOLVER_NAME_INDICATION,
-		ResolverTLSCert:        Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
-		LoggerPath:             ERROR_LOG_FILE_PATH,
+	nodeSpawner := Module.NewNode(&Node.NodeConfig{
+		Name:       "nodeSpawner",
+		LoggerPath: ERROR_LOG_FILE_PATH,
 	}, appSpawner.New(), nil, nil)
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
-	nodeWebsocketHTTP := Module.NewNode(&Node.Config{
-		Name:                   "nodeWebsocketHTTP",
-		ResolverAddress:        RESOLVER_ADDRESS,
-		ResolverNameIndication: RESOLVER_NAME_INDICATION,
-		ResolverTLSCert:        Utilities.GetFileContent(RESOLVER_TLS_CERT_PATH),
-		LoggerPath:             ERROR_LOG_FILE_PATH,
-		WebsocketPattern:       "/ws",
-		WebsocketPort:          WEBSOCKET_PORT,
-		HTTPPort:               HTTP_PORT,
+	nodeWebsocketHTTP := Module.NewNode(&Node.NodeConfig{
+		Name:       "nodeWebsocketHTTP",
+		LoggerPath: ERROR_LOG_FILE_PATH,
 	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		nodeSpawner,

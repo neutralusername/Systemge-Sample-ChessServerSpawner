@@ -37,12 +37,9 @@ func (app *App) StartNode(node *Node.Node, id string) error {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return Error.New("Node "+id+" already exists", nil)
 	}
-	newNode := Module.NewNode(&Node.Config{
-		Name:                   id,
-		ResolverAddress:        node.GetResolverAddress(),
-		ResolverNameIndication: node.GetResolverNameIndication(),
-		ResolverTLSCert:        node.GetResolverTLSCert(),
-		LoggerPath:             "error.log",
+	newNode := Module.NewNode(&Node.NodeConfig{
+		Name:       id,
+		LoggerPath: "error.log",
 	}, appChess.New(id), nil, nil)
 	err := node.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
