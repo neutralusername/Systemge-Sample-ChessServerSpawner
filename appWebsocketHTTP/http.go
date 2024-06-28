@@ -1,6 +1,7 @@
 package appWebsocketHTTP
 
 import (
+	"Systemge/Config"
 	"Systemge/Node"
 )
 
@@ -10,8 +11,8 @@ func (app *AppWebsocketHTTP) GetHTTPRequestHandlers() map[string]Node.HTTPReques
 	}
 }
 
-func (app *AppWebsocketHTTP) GetHTTPComponentConfig() Node.HTTPComponentConfig {
-	return Node.HTTPComponentConfig{
+func (app *AppWebsocketHTTP) GetHTTPComponentConfig() Config.HTTP {
+	return Config.HTTP{
 		Port:        ":8080",
 		TlsCertPath: "",
 		TlsKeyPath:  "",

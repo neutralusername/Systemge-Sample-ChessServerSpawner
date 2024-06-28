@@ -1,6 +1,7 @@
 package appWebsocketHTTP
 
 import (
+	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Message"
 	"Systemge/Node"
@@ -106,8 +107,8 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	node.RemoveTopicResolution(gameId)
 }
 
-func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() Node.WebsocketComponentConfig {
-	return Node.WebsocketComponentConfig{
+func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() Config.Websocket {
+	return Config.Websocket{
 		Pattern:     "/ws",
 		Port:        ":8443",
 		TlsCertPath: "",

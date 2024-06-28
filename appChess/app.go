@@ -1,6 +1,7 @@
 package appChess
 
 import (
+	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Node"
 	"Systemge/Utilities"
@@ -55,8 +56,8 @@ func (app *App) OnStop(node *Node.Node) error {
 	return nil
 }
 
-func (app *App) GetApplicationConfig() Node.ApplicationConfig {
-	return Node.ApplicationConfig{
+func (app *App) GetApplicationConfig() Config.Application {
+	return Config.Application{
 		ResolverAddress:            "127.0.0.1:60000",
 		ResolverNameIndication:     "127.0.0.1",
 		ResolverTLSCert:            Utilities.GetFileContent("MyCertificate.crt"),
