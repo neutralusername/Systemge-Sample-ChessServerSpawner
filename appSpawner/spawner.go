@@ -41,7 +41,7 @@ func (app *App) StartNode(node *Node.Node, id string) error {
 	newNode := Node.New(Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
-	}, appChess.New(id), nil, nil)
+	}, appChess.New(id))
 	err := node.AddSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		return Error.New("Error adding sync topic \""+id+"\"", err)

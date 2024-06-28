@@ -38,12 +38,12 @@ func main() {
 	nodeSpawner := Node.New(Config.Node{
 		Name:       "nodeSpawner",
 		LoggerPath: ERROR_LOG_FILE_PATH,
-	}, appSpawner.New(), nil, nil)
+	}, appSpawner.New())
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
 	nodeWebsocketHTTP := Node.New(Config.Node{
 		Name:       "nodeWebsocketHTTP",
 		LoggerPath: ERROR_LOG_FILE_PATH,
-	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
+	}, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		nodeSpawner,
 		nodeWebsocketHTTP,
