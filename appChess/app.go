@@ -4,6 +4,7 @@ import (
 	"Systemge/Config"
 	"Systemge/Error"
 	"Systemge/Node"
+	"Systemge/Resolution"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/topics"
 	"strings"
@@ -40,7 +41,7 @@ func (app *App) OnStart(node *Node.Node) error {
 	_, err := node.SyncMessage(topics.PROPAGATE_GAMESTART, node.GetName(), app.marshalBoard())
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error sending sync message", err).Error())
-		err := node.AsyncMessage(topics.END, node.GetName(), node.GetName())
+		err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), node.GetName())
 		if err != nil {
 			node.GetLogger().Log(Error.New("Error sending async message", err).Error())
 		}
@@ -58,9 +59,7 @@ func (app *App) OnStop(node *Node.Node) error {
 
 func (app *App) GetApplicationConfig() Config.Application {
 	return Config.Application{
-		ResolverAddress:            "127.0.0.1:60000",
-		ResolverNameIndication:     "127.0.0.1",
-		ResolverTLSCert:            Utilities.GetFileContent("MyCertificate.crt"),
+		ResolverResolution:         Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 		HandleMessagesSequentially: false,
 	}
 }

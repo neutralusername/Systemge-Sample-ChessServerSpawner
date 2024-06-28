@@ -5,8 +5,11 @@ import (
 	"Systemge/Config"
 	"Systemge/Module"
 	"Systemge/Node"
+	"Systemge/Resolution"
 	"Systemge/Resolver"
-	"SystemgeSampleChessServer/appSpawner"
+	"Systemge/Spawner"
+	"Systemge/Utilities"
+	"SystemgeSampleChessServer/appChess"
 	"SystemgeSampleChessServer/appWebsocketHTTP"
 )
 
@@ -35,17 +38,23 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	nodeSpawner := Node.New(Config.Node{
-		Name:       "nodeSpawner",
-		LoggerPath: ERROR_LOG_FILE_PATH,
-	}, appSpawner.New())
-	applicationWebsocketHTTP := appWebsocketHTTP.New()
-	nodeWebsocketHTTP := Node.New(Config.Node{
-		Name:       "nodeWebsocketHTTP",
-		LoggerPath: ERROR_LOG_FILE_PATH,
-	}, applicationWebsocketHTTP)
 	Module.StartCommandLineInterface(Module.NewMultiModule(
-		nodeSpawner,
-		nodeWebsocketHTTP,
+		Node.New(Config.Node{
+			Name:       "nodePingSpawner",
+			LoggerPath: ERROR_LOG_FILE_PATH,
+		}, Spawner.New(Config.Application{
+			ResolverResolution:         Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
+			HandleMessagesSequentially: false,
+		}, Config.Spawner{
+			IsSpawnedNodeTopicSync:       true,
+			SpawnedNodeLoggerPath:        ERROR_LOG_FILE_PATH,
+			ResolverConfigResolution:     Resolution.New("resolverConfig", "127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
+			BrokerConfigResolution:       Resolution.New("pingBrokerConfig", "127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
+			BrokerSubscriptionResolution: Resolution.New("pingBroker", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
+		}, appChess.New)),
+		Node.New(Config.Node{
+			Name:       "nodeWebsocketHTTP",
+			LoggerPath: ERROR_LOG_FILE_PATH,
+		}, appWebsocketHTTP.New()),
 	))
 }

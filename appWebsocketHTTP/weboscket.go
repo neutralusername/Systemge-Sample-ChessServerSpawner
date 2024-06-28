@@ -29,7 +29,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 				return Error.New("Opponent is already in a game", nil)
 			}
 			gameId := whiteId + "-" + blackId
-			_, err := node.SyncMessage(topics.NEW, node.GetName(), gameId)
+			_, err := node.SyncMessage(topics.START_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				return Error.New("Error spawning new game node", err)
 			}
@@ -44,7 +44,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			err := node.AsyncMessage(topics.END, node.GetName(), gameId)
+			err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), gameId)
 			if err != nil {
 				node.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
 			}
@@ -100,7 +100,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if gameId == "" {
 		return
 	}
-	err := node.AsyncMessage(topics.END, node.GetName(), gameId)
+	err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), gameId)
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
 	}
