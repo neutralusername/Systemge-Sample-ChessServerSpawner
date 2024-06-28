@@ -1,3 +1,4 @@
 # broker
-broker :60007 ./MyCertificate.crt ./MyKey.key
-config :60008 ./MyCertificate.crt ./MyKey.key
+_logs ./error.log
+_broker :60007 ./MyCertificate.crt ./MyKey.key
+_config :60008 ./MyCertificate.crt ./MyKey.key

@@ -3,8 +3,8 @@ package appSpawner
 import (
 	"Systemge/Config"
 	"Systemge/Error"
-	"Systemge/Module"
 	"Systemge/Node"
+	"Systemge/Resolution"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appChess"
 )
@@ -25,7 +25,7 @@ func (app *App) EndNode(node *Node.Node, id string) error {
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
 	}
-	err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+	err = node.RemoveResolverTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 	}
@@ -38,7 +38,7 @@ func (app *App) StartNode(node *Node.Node, id string) error {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return Error.New("Node "+id+" already exists", nil)
 	}
-	newNode := Module.NewNode(Config.Node{
+	newNode := Node.New(Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
 	}, appChess.New(id), nil, nil)
@@ -46,7 +46,7 @@ func (app *App) StartNode(node *Node.Node, id string) error {
 	if err != nil {
 		return Error.New("Error adding sync topic \""+id+"\"", err)
 	}
-	err = node.AddResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), "brokerChess", id)
+	err = node.AddResolverTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), *Resolution.New("brokerChess", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt")), id)
 	if err != nil {
 		err = node.RemoveSyncTopicRemotely("127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
@@ -60,7 +60,7 @@ func (app *App) StartNode(node *Node.Node, id string) error {
 		if err != nil {
 			node.GetLogger().Log(Error.New("Error removing sync topic \""+id+"\"", err).Error())
 		}
-		err = node.RemoveResolverTopicsRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
+		err = node.RemoveResolverTopicRemotely("127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("./MyCertificate.crt"), id)
 		if err != nil {
 			node.GetLogger().Log(Error.New("Error unregistering topic \""+id+"\"", err).Error())
 		}

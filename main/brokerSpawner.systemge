@@ -1,6 +1,7 @@
 # broker
-broker :60005 ./MyCertificate.crt ./MyKey.key
-config :60006 ./MyCertificate.crt ./MyKey.key
+_logs ./error.log
+_broker :60005 ./MyCertificate.crt ./MyKey.key
+_config :60006 ./MyCertificate.crt ./MyKey.key
 
 new sync
 end async
