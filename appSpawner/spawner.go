@@ -38,7 +38,7 @@ func (app *App) StartNode(node *Node.Node, id string) error {
 	if _, ok := app.spawnedNodes[id]; ok {
 		return Error.New("Node "+id+" already exists", nil)
 	}
-	newNode := Module.NewNode(&Config.Node{
+	newNode := Module.NewNode(Config.Node{
 		Name:       id,
 		LoggerPath: "error.log",
 	}, appChess.New(id), nil, nil)

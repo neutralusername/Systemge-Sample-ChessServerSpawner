@@ -32,12 +32,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	nodeSpawner := Module.NewNode(&Config.Node{
+	nodeSpawner := Module.NewNode(Config.Node{
 		Name:       "nodeSpawner",
 		LoggerPath: ERROR_LOG_FILE_PATH,
 	}, appSpawner.New(), nil, nil)
 	applicationWebsocketHTTP := appWebsocketHTTP.New()
-	nodeWebsocketHTTP := Module.NewNode(&Config.Node{
+	nodeWebsocketHTTP := Module.NewNode(Config.Node{
 		Name:       "nodeWebsocketHTTP",
 		LoggerPath: ERROR_LOG_FILE_PATH,
 	}, applicationWebsocketHTTP, applicationWebsocketHTTP, applicationWebsocketHTTP)
