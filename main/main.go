@@ -19,19 +19,19 @@ const HTTP_PORT = ":8080"
 const ERROR_LOG_FILE_PATH = "error.log"
 
 func main() {
-	err := Resolver.New(Module.ParseResolverConfigFromFile("resolver.systemge")).Start()
+	err := Resolver.New(Config.ParseResolverConfigFromFile("resolver.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	err = Broker.New(Module.ParseBrokerConfigFromFile("brokerSpawner.systemge")).Start()
+	err = Broker.New(Config.ParseBrokerConfigFromFile("brokerSpawner.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	err = Broker.New(Module.ParseBrokerConfigFromFile("brokerWebsocketHTTP.systemge")).Start()
+	err = Broker.New(Config.ParseBrokerConfigFromFile("brokerWebsocketHTTP.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
-	err = Broker.New(Module.ParseBrokerConfigFromFile("brokerChess.systemge")).Start()
+	err = Broker.New(Config.ParseBrokerConfigFromFile("brokerChess.systemge")).Start()
 	if err != nil {
 		panic(err)
 	}
