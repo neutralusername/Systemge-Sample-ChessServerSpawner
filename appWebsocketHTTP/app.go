@@ -12,7 +12,7 @@ type AppWebsocketHTTP struct {
 	mutex   sync.Mutex
 }
 
-func New() Node.WebsocketHTTPApplication {
+func New() *AppWebsocketHTTP {
 	return &AppWebsocketHTTP{
 		nodeIds: make(map[string]string),
 	}
