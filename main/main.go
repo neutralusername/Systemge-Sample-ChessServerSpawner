@@ -40,10 +40,10 @@ func main() {
 	}
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		Node.New(Config.Node{
-			Name:       "nodePingSpawner",
-			LoggerPath: ERROR_LOG_FILE_PATH,
+			Name:               "nodePingSpawner",
+			LoggerPath:         ERROR_LOG_FILE_PATH,
+			ResolverResolution: Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 		}, Spawner.New(Config.Application{
-			ResolverResolution:         Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 			HandleMessagesSequentially: false,
 		}, Config.Spawner{
 			IsSpawnedNodeTopicSync:       true,
@@ -53,8 +53,9 @@ func main() {
 			BrokerSubscriptionResolution: Resolution.New("pingBroker", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 		}, appChess.New)),
 		Node.New(Config.Node{
-			Name:       "nodeWebsocketHTTP",
-			LoggerPath: ERROR_LOG_FILE_PATH,
+			Name:               "nodeWebsocketHTTP",
+			LoggerPath:         ERROR_LOG_FILE_PATH,
+			ResolverResolution: Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 		}, appWebsocketHTTP.New()),
 	))
 }
