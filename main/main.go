@@ -48,6 +48,7 @@ func main() {
 		}, Config.Spawner{
 			IsSpawnedNodeTopicSync:       true,
 			SpawnedNodeLoggerPath:        ERROR_LOG_FILE_PATH,
+			ResolverResolution:           Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 			ResolverConfigResolution:     Resolution.New("resolverConfig", "127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 			BrokerConfigResolution:       Resolution.New("pingBrokerConfig", "127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
 			BrokerSubscriptionResolution: Resolution.New("pingBroker", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
