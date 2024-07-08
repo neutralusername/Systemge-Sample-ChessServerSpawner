@@ -5,6 +5,7 @@ import (
 	"Systemge/Error"
 	"Systemge/Message"
 	"Systemge/Node"
+	"Systemge/TcpServer"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 )
@@ -48,7 +49,6 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if err != nil {
 				node.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
 			}
-			node.RemoveTopicResolution(gameId)
 			return nil
 		},
 		"move": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
@@ -104,14 +104,14 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if err != nil {
 		node.GetLogger().Log(Error.New("Error sending end message for game: "+gameId, err).Error())
 	}
-	node.RemoveTopicResolution(gameId)
 }
 
 func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() Config.Websocket {
 	return Config.Websocket{
-		Pattern:     "/ws",
-		Port:        ":8443",
-		TlsCertPath: "",
-		TlsKeyPath:  "",
+		Pattern:                          "/ws",
+		Server:                           TcpServer.New(8443, "", ""),
+		HandleClientMessagesSequentially: false,
+		ClientMessageCooldownMs:          0,
+		ClientWatchdogTimeoutMs:          20000,
 	}
 }

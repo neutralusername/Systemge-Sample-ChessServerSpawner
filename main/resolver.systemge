@@ -1,8 +1,4 @@
 # resolver
 _logs ./error.log
-_resolver :60000 ./MyCertificate.crt ./MyKey.key
-_config :60001 ./MyCertificate.crt ./MyKey.key
-
-brokerSpawner 127.0.0.1:60005 127.0.0.1 ./MyCertificate.crt startNodeAsync startNodeSync endNodeAsync endNodeSync
-brokerWebsocket 127.0.0.1:60003 127.0.0.1 ./MyCertificate.crt propagate_gameStart propagate_gameEnd
-brokerChess 127.0.0.1:60007 127.0.0.1 ./MyCertificate.crt
+_resolver 60000 ./MyCertificate.crt ./MyKey.key
+_config 60001 ./MyCertificate.crt ./MyKey.key

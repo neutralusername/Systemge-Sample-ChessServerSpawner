@@ -5,12 +5,13 @@ import (
 	"Systemge/Config"
 	"Systemge/Module"
 	"Systemge/Node"
-	"Systemge/Resolution"
 	"Systemge/Resolver"
 	"Systemge/Spawner"
+	"Systemge/TcpEndpoint"
 	"Systemge/Utilities"
 	"SystemgeSampleChessServer/appChess"
 	"SystemgeSampleChessServer/appWebsocketHTTP"
+	"SystemgeSampleChessServer/config"
 )
 
 const RESOLVER_ADDRESS = "127.0.0.1:60000"
@@ -40,23 +41,27 @@ func main() {
 	}
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		Node.New(Config.Node{
-			Name:               "nodePingSpawner",
-			LoggerPath:         ERROR_LOG_FILE_PATH,
-			ResolverResolution: Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
+			Name:                      "nodeWebsocketHTTP",
+			LoggerPath:                ERROR_LOG_FILE_PATH,
+			ResolverEndpoint:          TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
+			SyncResponseTimeoutMs:     1000,
+			TopicResolutionLifetimeMs: 10000,
+			BrokerSubscribeDelayMs:    1000,
+		}, appWebsocketHTTP.New()),
+		Node.New(Config.Node{
+			Name:                      "nodePingSpawner",
+			LoggerPath:                ERROR_LOG_FILE_PATH,
+			ResolverEndpoint:          TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
+			SyncResponseTimeoutMs:     1000,
+			TopicResolutionLifetimeMs: 10000,
+			BrokerSubscribeDelayMs:    1000,
 		}, Spawner.New(Config.Application{
 			HandleMessagesSequentially: false,
 		}, Config.Spawner{
-			IsSpawnedNodeTopicSync:       true,
-			SpawnedNodeLoggerPath:        ERROR_LOG_FILE_PATH,
-			ResolverResolution:           Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
-			ResolverConfigResolution:     Resolution.New("resolverConfig", "127.0.0.1:60001", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
-			BrokerConfigResolution:       Resolution.New("pingBrokerConfig", "127.0.0.1:60008", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
-			BrokerSubscriptionResolution: Resolution.New("pingBroker", "127.0.0.1:60007", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
+			SpawnedNodeLoggerPath:  ERROR_LOG_FILE_PATH,
+			IsSpawnedNodeTopicSync: true,
+			ResolverEndpoint:       TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
+			BrokerConfigEndpoint:   TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.BROKER_CONFIG_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
 		}, appChess.New)),
-		Node.New(Config.Node{
-			Name:               "nodeWebsocketHTTP",
-			LoggerPath:         ERROR_LOG_FILE_PATH,
-			ResolverResolution: Resolution.New("resolver", "127.0.0.1:60000", "127.0.0.1", Utilities.GetFileContent("MyCertificate.crt")),
-		}, appWebsocketHTTP.New()),
 	))
 }
