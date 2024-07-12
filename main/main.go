@@ -47,6 +47,7 @@ func main() {
 			SyncResponseTimeoutMs:     1000,
 			TopicResolutionLifetimeMs: 10000,
 			BrokerSubscribeDelayMs:    1000,
+			TcpTimeoutMs:              5000,
 		}, appWebsocketHTTP.New()),
 		Node.New(Config.Node{
 			Name:                      "nodePingSpawner",
@@ -55,6 +56,7 @@ func main() {
 			SyncResponseTimeoutMs:     1000,
 			TopicResolutionLifetimeMs: 10000,
 			BrokerSubscribeDelayMs:    1000,
+			TcpTimeoutMs:              5000,
 		}, Spawner.New(Config.Application{
 			HandleMessagesSequentially: false,
 		}, Config.Spawner{

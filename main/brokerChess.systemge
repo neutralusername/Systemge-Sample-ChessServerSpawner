@@ -8,3 +8,4 @@ _broker 60007 ./MyCertificate.crt ./MyKey.key
 _config 60008 ./MyCertificate.crt ./MyKey.key
 _resolver 127.0.0.1:60001 example.com ./MyCertificate.crt
 _syncRequestTimeoutMs 5000
+_tcpTimeoutMs 5000
