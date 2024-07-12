@@ -41,9 +41,7 @@ func main() {
 	}
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		Node.New(Config.ParseNodeConfigFromFile("nodeWebsocketHTTP.systemge"), appWebsocketHTTP.New()),
-		Node.New(Config.ParseNodeConfigFromFile("nodeSpawner.systemge"), Spawner.New(Config.Application{
-			HandleMessagesSequentially: false,
-		}, Config.Spawner{
+		Node.New(Config.ParseNodeConfigFromFile("nodeSpawner.systemge"), Spawner.New(Config.Spawner{
 			SpawnedNodeLogger:      Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
 			IsSpawnedNodeTopicSync: true,
 			ResolverEndpoint:       TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
