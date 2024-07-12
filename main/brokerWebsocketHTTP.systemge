@@ -6,7 +6,7 @@ _info ./error.log
 _debug ./error.log
 _broker 60003 ./MyCertificate.crt ./MyKey.key
 _config 60004 ./MyCertificate.crt ./MyKey.key
-_resolver 127.0.0.1:60001 example.com ./MyCertificate.crt
+_resolverConfig 127.0.0.1:60001 example.com ./MyCertificate.crt
 _syncResponseTimeoutMs 5000
 _tcpTimeoutMs 5000
 
