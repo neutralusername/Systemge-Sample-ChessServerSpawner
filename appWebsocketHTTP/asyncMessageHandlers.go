@@ -16,11 +16,11 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			node.WebsocketGroupcast(message.GetOrigin(), message)
 			err := node.RemoveFromWebsocketGroup(gameId, ids[0])
 			if err != nil {
-				node.GetLogger().Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+				node.GetLogger().Error(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
 			}
 			err = node.RemoveFromWebsocketGroup(gameId, ids[1])
 			if err != nil {
-				node.GetLogger().Log(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+				node.GetLogger().Error(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
 			}
 			app.mutex.Lock()
 			delete(app.nodeIds, ids[0])

@@ -21,7 +21,7 @@ func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Node.SyncMessag
 			if err != nil {
 				err := node.RemoveFromWebsocketGroup(gameId, ids[0])
 				if err != nil {
-					node.GetLogger().Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+					node.GetLogger().Warning(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
 				}
 				return "", Error.New("Error adding \""+ids[1]+"\" to group \""+gameId+"\"", err)
 			}

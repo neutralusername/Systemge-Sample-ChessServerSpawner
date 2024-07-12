@@ -1,4 +1,7 @@
 # resolver
-_logs ./error.log
+_error ./error.log
+_warning ./error.log
+_info ./error.log
+_debug ./error.log
 _resolver 60000 ./MyCertificate.crt ./MyKey.key
 _config 60001 ./MyCertificate.crt ./MyKey.key

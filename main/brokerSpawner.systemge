@@ -1,6 +1,9 @@
 # broker
 _endpoint 127.0.0.1 example.com
-_logs ./error.log
+_error ./error.log
+_warning ./error.log
+_info ./error.log
+_debug ./error.log
 _broker 60005 ./MyCertificate.crt ./MyKey.key
 _config 60006 ./MyCertificate.crt ./MyKey.key
 _resolver 127.0.0.1:60001 example.com ./MyCertificate.crt

@@ -42,7 +42,7 @@ func main() {
 	Module.StartCommandLineInterface(Module.NewMultiModule(
 		Node.New(Config.Node{
 			Name:                      "nodeWebsocketHTTP",
-			LoggerPath:                ERROR_LOG_FILE_PATH,
+			Logger:                    Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
 			ResolverEndpoint:          TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
 			SyncResponseTimeoutMs:     1000,
 			TopicResolutionLifetimeMs: 10000,
@@ -50,7 +50,7 @@ func main() {
 		}, appWebsocketHTTP.New()),
 		Node.New(Config.Node{
 			Name:                      "nodePingSpawner",
-			LoggerPath:                ERROR_LOG_FILE_PATH,
+			Logger:                    Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
 			ResolverEndpoint:          TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
 			SyncResponseTimeoutMs:     1000,
 			TopicResolutionLifetimeMs: 10000,
@@ -58,7 +58,7 @@ func main() {
 		}, Spawner.New(Config.Application{
 			HandleMessagesSequentially: false,
 		}, Config.Spawner{
-			SpawnedNodeLoggerPath:  ERROR_LOG_FILE_PATH,
+			SpawnedNodeLogger:      Utilities.NewLogger(ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH, ERROR_LOG_FILE_PATH),
 			IsSpawnedNodeTopicSync: true,
 			ResolverEndpoint:       TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.RESOLVER_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
 			BrokerConfigEndpoint:   TcpEndpoint.New(config.SERVER_IP+":"+Utilities.IntToString(config.BROKER_CONFIG_PORT), config.SERVER_NAME_INDICATION, Utilities.GetFileContent(config.CERT_PATH)),
