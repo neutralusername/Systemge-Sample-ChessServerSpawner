@@ -2,13 +2,13 @@ package appWebsocketHTTP
 
 import (
 	"Systemge/Config"
-	"Systemge/Node"
+	"Systemge/Http"
 	"Systemge/TcpServer"
 )
 
-func (app *AppWebsocketHTTP) GetHTTPRequestHandlers() map[string]Node.HTTPRequestHandler {
-	return map[string]Node.HTTPRequestHandler{
-		"/": Node.SendDirectory("../frontend"),
+func (app *AppWebsocketHTTP) GetHTTPRequestHandlers() map[string]Http.RequestHandler {
+	return map[string]Http.RequestHandler{
+		"/": Http.SendDirectory("../frontend"),
 	}
 }
 
