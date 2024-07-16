@@ -1,11 +1,10 @@
-# broker
-_endpoint 127.0.0.1 example.com
-_error ./error.log
-_warning ./error.log
-_info ./error.log
-_debug ./error.log
-_broker 60007 ./MyCertificate.crt ./MyKey.key
-_config 60008 ./MyCertificate.crt ./MyKey.key
-_resolverConfig 127.0.0.1:60001 example.com ./MyCertificate.crt
-_syncResponseTimeoutMs 5000
-_tcpTimeoutMs 5000
+#	broker
+_endpoint	127.0.0.1	example.com
+_error	./error.log
+_warning	./error.log
+_debug	./error.log
+_broker	60002	./MyCertificate.crt	./MyKey.key
+_config	60003	./MyCertificate.crt	./MyKey.key
+_resolverConfig	127.0.0.1:60001	example.com	./MyCertificate.crt
+_syncResponseTimeoutMs	5000
+_tcpTimeoutMs	5000
