@@ -17,8 +17,8 @@ func New() *AppWebsocketHTTP {
 	}
 }
 
-func (app *AppWebsocketHTTP) GetCommandHandlers() map[string]Node.CustomCommandHandler {
-	return map[string]Node.CustomCommandHandler{
+func (app *AppWebsocketHTTP) GetCommandHandlers() map[string]Node.CommandHandler {
+	return map[string]Node.CommandHandler{
 		"move": func(node *Node.Node, args []string) error {
 			if len(args) != 6 {
 				return Error.New("Invalid move command", nil)
