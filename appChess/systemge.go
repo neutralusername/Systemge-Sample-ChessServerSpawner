@@ -30,8 +30,8 @@ func (app *App) OnStop(node *Node.Node) error {
 	return nil
 }
 
-func (app *App) GetSystemgeConfig() Config.Application {
-	return Config.Application{
+func (app *App) GetSystemgeConfig() Config.Systemge {
+	return Config.Systemge{
 		HandleMessagesSequentially: false,
 	}
 }

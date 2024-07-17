@@ -17,8 +17,8 @@ func (app *AppWebsocketHTTP) OnStop(node *Node.Node) error {
 	return nil
 }
 
-func (app *AppWebsocketHTTP) GetSystemgeConfig() Config.Application {
-	return Config.Application{
+func (app *AppWebsocketHTTP) GetSystemgeConfig() Config.Systemge {
+	return Config.Systemge{
 		HandleMessagesSequentially: false,
 	}
 }
