@@ -17,7 +17,7 @@ func New() *AppWebsocketHTTP {
 	}
 }
 
-func (app *AppWebsocketHTTP) GetCustomCommandHandlers() map[string]Node.CustomCommandHandler {
+func (app *AppWebsocketHTTP) GetCommandHandlers() map[string]Node.CustomCommandHandler {
 	return map[string]Node.CustomCommandHandler{
 		"move": func(node *Node.Node, args []string) error {
 			if len(args) != 6 {
