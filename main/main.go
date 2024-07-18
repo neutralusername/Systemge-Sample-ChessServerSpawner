@@ -22,22 +22,22 @@ const ERROR_LOG_FILE_PATH = "error.log"
 
 func main() {
 	Node.StartCommandLineInterface(true,
-		Node.New(Config.Node{
+		Node.New(&Config.Node{
 			Name: "nodeResolver",
-			Logger: Config.Logger{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,
 				WarningPath: ERROR_LOG_FILE_PATH,
 				QueueBuffer: 10000,
 			},
-		}, Resolver.New(Config.Resolver{
-			Server: Config.TcpServer{
+		}, Resolver.New(&Config.Resolver{
+			Server: &Config.TcpServer{
 				Port:        60000,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			ConfigServer: Config.TcpServer{
+			ConfigServer: &Config.TcpServer{
 				Port:        60001,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
@@ -45,32 +45,32 @@ func main() {
 
 			TcpTimeoutMs: 5000,
 		})),
-		Node.New(Config.Node{
+		Node.New(&Config.Node{
 			Name: "nodeBrokerSpawner",
-			Logger: Config.Logger{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,
 				WarningPath: ERROR_LOG_FILE_PATH,
 				QueueBuffer: 10000,
 			},
-		}, Broker.New(Config.Broker{
-			Server: Config.TcpServer{
+		}, Broker.New(&Config.Broker{
+			Server: &Config.TcpServer{
 				Port:        60002,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			Endpoint: Config.TcpEndpoint{
+			Endpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60002",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
-			ConfigServer: Config.TcpServer{
+			ConfigServer: &Config.TcpServer{
 				Port:        60003,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			ResolverConfigEndpoint: Config.TcpEndpoint{
+			ResolverConfigEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60001",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
@@ -81,32 +81,32 @@ func main() {
 			SyncResponseTimeoutMs: 10000,
 			TcpTimeoutMs:          5000,
 		})),
-		Node.New(Config.Node{
+		Node.New(&Config.Node{
 			Name: "nodeBrokerWebsocketHTTP",
-			Logger: Config.Logger{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,
 				WarningPath: ERROR_LOG_FILE_PATH,
 				QueueBuffer: 10000,
 			},
-		}, Broker.New(Config.Broker{
-			Server: Config.TcpServer{
+		}, Broker.New(&Config.Broker{
+			Server: &Config.TcpServer{
 				Port:        60004,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			Endpoint: Config.TcpEndpoint{
+			Endpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60004",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
-			ConfigServer: Config.TcpServer{
+			ConfigServer: &Config.TcpServer{
 				Port:        60005,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			ResolverConfigEndpoint: Config.TcpEndpoint{
+			ResolverConfigEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60001",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
@@ -117,28 +117,28 @@ func main() {
 			SyncResponseTimeoutMs: 10000,
 			TcpTimeoutMs:          5000,
 		})),
-		Node.New(Config.Node{
+		Node.New(&Config.Node{
 			Name: "nodeBrokerChess",
-			Logger: Config.Logger{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,
 				WarningPath: ERROR_LOG_FILE_PATH,
 				QueueBuffer: 10000,
 			},
-		}, Broker.New(Config.Broker{
-			Server: Config.TcpServer{
+		}, Broker.New(&Config.Broker{
+			Server: &Config.TcpServer{
 				Port:        60006,
 				TlsCertPath: "MyCertificate.crt",
 				TlsKeyPath:  "MyKey.key",
 			},
-			Endpoint: Config.TcpEndpoint{
+			Endpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60006",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
-			ConfigServer: Config.TcpServer{Port: 60007, TlsCertPath: "MyCertificate.crt", TlsKeyPath: "MyKey.key"},
-			ResolverConfigEndpoint: Config.TcpEndpoint{
+			ConfigServer: &Config.TcpServer{Port: 60007, TlsCertPath: "MyCertificate.crt", TlsKeyPath: "MyKey.key"},
+			ResolverConfigEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60001",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
@@ -146,17 +146,17 @@ func main() {
 			SyncResponseTimeoutMs: 10000,
 			TcpTimeoutMs:          5000,
 		})),
-		Node.New(Config.Node{
+		Node.New(&Config.Node{
 			Name: "nodeSpawner",
-			Logger: Config.Logger{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,
 				WarningPath: ERROR_LOG_FILE_PATH,
 				QueueBuffer: 10000,
 			},
-		}, Spawner.New(Config.Spawner{
-			Logger: Config.Logger{
+		}, Spawner.New(&Config.Spawner{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,
@@ -164,17 +164,17 @@ func main() {
 				QueueBuffer: 10000,
 			},
 			IsSpawnedNodeTopicSync: true,
-			ResolverEndpoint: Config.TcpEndpoint{
+			ResolverEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60000",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
-			BrokerConfigEndpoint: Config.TcpEndpoint{
+			BrokerConfigEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60003",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
-		}, Config.Systemge{
+		}, &Config.Systemge{
 			HandleMessagesSequentially: false,
 
 			BrokerSubscribeDelayMs:    1000,
@@ -182,16 +182,16 @@ func main() {
 			SyncResponseTimeoutMs:     10000,
 			TcpTimeoutMs:              5000,
 
-			ResolverEndpoint: Config.TcpEndpoint{
+			ResolverEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60000",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
 		},
 			appChess.New)),
-		Node.New(Config.Node{
+		Node.New(&Config.Node{
 			Name: "nodeWebsocketHTTP",
-			Logger: Config.Logger{
+			Logger: &Config.Logger{
 				InfoPath:    ERROR_LOG_FILE_PATH,
 				DebugPath:   ERROR_LOG_FILE_PATH,
 				ErrorPath:   ERROR_LOG_FILE_PATH,

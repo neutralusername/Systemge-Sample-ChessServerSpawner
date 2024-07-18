@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func (app *App) GetSystemgeComponentConfig() Config.Systemge {
-	return Config.Systemge{
+func (app *App) GetSystemgeComponentConfig() *Config.Systemge {
+	return &Config.Systemge{
 		HandleMessagesSequentially: false,
 
 		BrokerSubscribeDelayMs:    1000,
@@ -18,7 +18,7 @@ func (app *App) GetSystemgeComponentConfig() Config.Systemge {
 		SyncResponseTimeoutMs:     10000,
 		TcpTimeoutMs:              5000,
 
-		ResolverEndpoint: Config.TcpEndpoint{
+		ResolverEndpoint: &Config.TcpEndpoint{
 			Address: "127.0.0.1:60000",
 			Domain:  "example.com",
 			TlsCert: Helpers.GetFileContent("MyCertificate.crt"),

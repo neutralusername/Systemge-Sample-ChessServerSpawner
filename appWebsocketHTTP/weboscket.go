@@ -105,10 +105,10 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	}
 }
 
-func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() Config.Websocket {
-	return Config.Websocket{
+func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() *Config.Websocket {
+	return &Config.Websocket{
 		Pattern: "/ws",
-		Server: Config.TcpServer{
+		Server: &Config.TcpServer{
 			Port: 8443,
 		},
 		HandleClientMessagesSequentially: false,
