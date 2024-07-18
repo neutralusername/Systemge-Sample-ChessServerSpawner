@@ -3,7 +3,7 @@ package appWebsocketHTTP
 import (
 	"Systemge/Config"
 	"Systemge/Http"
-	"Systemge/TcpServer"
+	"Systemge/Tcp"
 )
 
 func (app *AppWebsocketHTTP) GetHTTPRequestHandlers() map[string]Http.RequestHandler {
@@ -14,6 +14,6 @@ func (app *AppWebsocketHTTP) GetHTTPRequestHandlers() map[string]Http.RequestHan
 
 func (app *AppWebsocketHTTP) GetHTTPComponentConfig() Config.HTTP {
 	return Config.HTTP{
-		Server: TcpServer.New(8080, "", ""),
+		Server: Tcp.NewServer(8080, "", ""),
 	}
 }

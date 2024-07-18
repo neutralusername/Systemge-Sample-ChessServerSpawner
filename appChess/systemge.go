@@ -3,10 +3,10 @@ package appChess
 import (
 	"Systemge/Config"
 	"Systemge/Error"
+	"Systemge/Helpers"
 	"Systemge/Message"
 	"Systemge/Node"
-	"Systemge/TcpEndpoint"
-	"Systemge/Utilities"
+	"Systemge/Tcp"
 	"strings"
 )
 
@@ -19,7 +19,7 @@ func (app *App) GetSystemgeComponentConfig() Config.Systemge {
 		SyncResponseTimeoutMs:     10000,
 		TcpTimeoutMs:              5000,
 
-		ResolverEndpoint: TcpEndpoint.New("127.0.0.1:60000", "example.com", Utilities.GetFileContent("MyCertificate.crt")),
+		ResolverEndpoint: Tcp.NewEndpoint("127.0.0.1:60000", "example.com", Helpers.GetFileContent("MyCertificate.crt")),
 	}
 }
 
@@ -34,7 +34,7 @@ func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 			if len(segments) != 4 {
 				return "", Error.New("Invalid message format", nil)
 			}
-			chessMove, err := app.handleMoveRequest(message.GetOrigin(), Utilities.StringToInt(segments[0]), Utilities.StringToInt(segments[1]), Utilities.StringToInt(segments[2]), Utilities.StringToInt(segments[3]))
+			chessMove, err := app.handleMoveRequest(message.GetOrigin(), Helpers.StringToInt(segments[0]), Helpers.StringToInt(segments[1]), Helpers.StringToInt(segments[2]), Helpers.StringToInt(segments[3]))
 			if err != nil {
 				return "", err
 			}

@@ -1,7 +1,7 @@
 package appChess
 
 import (
-	"Systemge/Utilities"
+	"Systemge/Tools"
 	"strings"
 )
 
@@ -37,7 +37,7 @@ func getStandardStartingPosition() [8][8]Piece {
 }
 
 func get960StartingPosition() [8][8]Piece {
-	randomizer := Utilities.NewRandomizer(Utilities.GetSystemTime())
+	randomizer := Tools.NewRandomizer(Tools.GetSystemTime())
 
 	bishop1 := randomizer.GenerateRandomNumber(0, 3) * 2
 	bishop2 := randomizer.GenerateRandomNumber(0, 3)*2 + 1

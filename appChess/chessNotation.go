@@ -1,6 +1,6 @@
 package appChess
 
-import "Systemge/Utilities"
+import "Systemge/Helpers"
 
 func (app *App) generateAlgebraicNotation(fromRow, fromCol, toRow, toCol int) string {
 	notation := ""
@@ -57,5 +57,5 @@ func (app *App) getColumnLetter(col int) string {
 }
 
 func (app *App) getRowNumber(row int) string {
-	return Utilities.IntToString(8 - row)
+	return Helpers.IntToString(8 - row)
 }
