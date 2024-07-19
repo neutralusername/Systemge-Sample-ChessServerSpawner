@@ -46,7 +46,9 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			}
 			err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), gameId)
 			if err != nil {
-				node.GetLogger().Error(Error.New("Error sending end message for game: "+gameId, err).Error())
+				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+					errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())
+				}
 			}
 			return nil
 		},
@@ -88,7 +90,9 @@ func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *
 	err := websocketClient.Send(Message.NewAsync("connected", node.GetName(), websocketClient.GetId()).Serialize())
 	if err != nil {
 		websocketClient.Disconnect()
-		node.GetLogger().Warning(Error.New("Error sending connected message", err).Error())
+		if warningLogger := node.GetWarningLogger(); warningLogger != nil {
+			warningLogger.Log(Error.New("Error sending connected message", err).Error())
+		}
 	}
 }
 
@@ -101,7 +105,9 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	}
 	err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), gameId)
 	if err != nil {
-		node.GetLogger().Error(Error.New("Error sending end message for game: "+gameId, err).Error())
+		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+			errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())
+		}
 	}
 }
 

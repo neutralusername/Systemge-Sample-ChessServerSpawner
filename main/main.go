@@ -18,18 +18,31 @@ const RESOLVER_TLS_CERT_PATH = "MyCertificate.crt"
 const WEBSOCKET_PORT = ":8443"
 const HTTP_PORT = ":8080"
 
-const ERROR_LOG_FILE_PATH = "error.log"
+const LOGGER_PATH = "logs.log"
 
 func main() {
 	Node.StartCommandLineInterface(true,
 		Node.New(&Config.Node{
 			Name: "nodeResolver",
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"nodeResolver\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"nodeResolver\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"nodeResolver\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"nodeResolver\"] ",
 			},
 		}, Resolver.New(&Config.Resolver{
 			Server: &Config.TcpServer{
@@ -47,12 +60,25 @@ func main() {
 		})),
 		Node.New(&Config.Node{
 			Name: "nodeBrokerSpawner",
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"nodeBrokerSpawner\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"nodeBrokerSpawner\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"nodeBrokerSpawner\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"nodeBrokerSpawner\"] ",
 			},
 		}, Broker.New(&Config.Broker{
 			Server: &Config.TcpServer{
@@ -83,12 +109,25 @@ func main() {
 		})),
 		Node.New(&Config.Node{
 			Name: "nodeBrokerWebsocketHTTP",
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"nodeBrokerWebsocketHTTP\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"nodeBrokerWebsocketHTTP\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"nodeBrokerWebsocketHTTP\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"nodeBrokerWebsocketHTTP\"] ",
 			},
 		}, Broker.New(&Config.Broker{
 			Server: &Config.TcpServer{
@@ -119,12 +158,25 @@ func main() {
 		})),
 		Node.New(&Config.Node{
 			Name: "nodeBrokerChess",
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"nodeBrokerChess\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"nodeBrokerChess\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"nodeBrokerChess\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"nodeBrokerChess\"] ",
 			},
 		}, Broker.New(&Config.Broker{
 			Server: &Config.TcpServer{
@@ -148,20 +200,46 @@ func main() {
 		})),
 		Node.New(&Config.Node{
 			Name: "nodeSpawner",
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"nodeSpawner\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"nodeSpawner\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"nodeSpawner\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"nodeSpawner\"] ",
 			},
 		}, Spawner.New(&Config.Spawner{
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"spawnedNode\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"spawnedNode\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"spawnedNode\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"spawnedNode\"] ",
 			},
 			IsSpawnedNodeTopicSync: true,
 			ResolverEndpoint: &Config.TcpEndpoint{
@@ -191,12 +269,25 @@ func main() {
 			appChess.New)),
 		Node.New(&Config.Node{
 			Name: "nodeWebsocketHTTP",
-			Logger: &Config.Logger{
-				InfoPath:    ERROR_LOG_FILE_PATH,
-				DebugPath:   ERROR_LOG_FILE_PATH,
-				ErrorPath:   ERROR_LOG_FILE_PATH,
-				WarningPath: ERROR_LOG_FILE_PATH,
+			InfoLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
+				Prefix:      "[Info \"nodeWebsocketHTTP\"] ",
+			},
+			WarningLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Warning \"nodeWebsocketHTTP\"] ",
+			},
+			ErrorLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Error \"nodeWebsocketHTTP\"] ",
+			},
+			DebugLogger: &Config.Logger{
+				Path:        LOGGER_PATH,
+				QueueBuffer: 10000,
+				Prefix:      "[Debug \"nodeWebsocketHTTP\"] ",
 			},
 		}, appWebsocketHTTP.New()),
 	)

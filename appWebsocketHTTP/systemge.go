@@ -35,11 +35,15 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			node.WebsocketGroupcast(message.GetOrigin(), message)
 			err := node.RemoveFromWebsocketGroup(gameId, ids[0])
 			if err != nil {
-				node.GetLogger().Error(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+					errorLogger.Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+				}
 			}
 			err = node.RemoveFromWebsocketGroup(gameId, ids[1])
 			if err != nil {
-				node.GetLogger().Error(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+					errorLogger.Log(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+				}
 			}
 			app.mutex.Lock()
 			delete(app.nodeIds, ids[0])
@@ -63,7 +67,9 @@ func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Node.SyncMessag
 			if err != nil {
 				err := node.RemoveFromWebsocketGroup(gameId, ids[0])
 				if err != nil {
-					node.GetLogger().Warning(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+					if warningLogger := node.GetWarningLogger(); warningLogger != nil {
+						warningLogger.Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
+					}
 				}
 				return "", Error.New("Error adding \""+ids[1]+"\" to group \""+gameId+"\"", err)
 			}
