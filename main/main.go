@@ -7,6 +7,7 @@ import (
 	"Systemge/Node"
 	"Systemge/Resolver"
 	"Systemge/Spawner"
+	"Systemge/Tools"
 	"SystemgeSampleChessServer/appChess"
 	"SystemgeSampleChessServer/appWebsocketHTTP"
 	"SystemgeSampleChessServer/topics"
@@ -23,7 +24,8 @@ const LOGGER_PATH = "logs.log"
 func main() {
 	Node.StartCommandLineInterface(true,
 		Node.New(&Config.Node{
-			Name: "nodeResolver",
+			Name:           "nodeResolver",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -59,7 +61,8 @@ func main() {
 			TcpTimeoutMs: 5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeBrokerSpawner",
+			Name:           "nodeBrokerSpawner",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -108,7 +111,8 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeBrokerWebsocketHTTP",
+			Name:           "nodeBrokerWebsocketHTTP",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -157,7 +161,8 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeBrokerChess",
+			Name:           "nodeBrokerChess",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -199,7 +204,8 @@ func main() {
 			TcpTimeoutMs:          5000,
 		})),
 		Node.New(&Config.Node{
-			Name: "nodeSpawner",
+			Name:           "nodeSpawner",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
@@ -268,7 +274,8 @@ func main() {
 		},
 			appChess.New)),
 		Node.New(&Config.Node{
-			Name: "nodeWebsocketHTTP",
+			Name:           "nodeWebsocketHTTP",
+			RandomizerSeed: Tools.GetSystemTime(),
 			InfoLogger: &Config.Logger{
 				Path:        LOGGER_PATH,
 				QueueBuffer: 10000,
