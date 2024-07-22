@@ -3,6 +3,7 @@ package main
 import (
 	"Systemge/Broker"
 	"Systemge/Config"
+	"Systemge/Dashboard"
 	"Systemge/Helpers"
 	"Systemge/Node"
 	"Systemge/Resolver"
@@ -22,7 +23,38 @@ const HTTP_PORT = ":8080"
 const LOGGER_PATH = "logs.log"
 
 func main() {
-	Node.StartCommandLineInterface(
+
+	Node.New(&Config.Node{
+		Name:           "dashboard",
+		RandomizerSeed: Tools.GetSystemTime(),
+		ErrorLogger: &Config.Logger{
+			Path:        LOGGER_PATH,
+			QueueBuffer: 10000,
+			Prefix:      "[Error \"dashboard\"] ",
+		},
+		WarningLogger: &Config.Logger{
+			Path:        LOGGER_PATH,
+			QueueBuffer: 10000,
+			Prefix:      "[Warning \"dashboard\"] ",
+		},
+		InfoLogger: &Config.Logger{
+			Path:        LOGGER_PATH,
+			QueueBuffer: 10000,
+			Prefix:      "[Info \"dashboard\"] ",
+		},
+		DebugLogger: &Config.Logger{
+			Path:        LOGGER_PATH,
+			QueueBuffer: 10000,
+			Prefix:      "[Debug \"dashboard\"] ",
+		},
+	}, Dashboard.New(&Config.Dashboard{
+		Http: &Config.Http{
+			Server: &Config.TcpServer{
+				Port: 8081,
+			},
+		},
+		StatusUpdateIntervalMs: 1000,
+	},
 		Node.New(&Config.Node{
 			Name:           "nodeResolver",
 			RandomizerSeed: Tools.GetSystemTime(),
@@ -297,5 +329,6 @@ func main() {
 				Prefix:      "[Debug \"nodeWebsocketHTTP\"] ",
 			},
 		}, appWebsocketHTTP.New()),
-	)
+	)).Start()
+	<-make(chan bool)
 }
