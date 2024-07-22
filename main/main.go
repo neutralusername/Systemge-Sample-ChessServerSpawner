@@ -327,6 +327,5 @@ func main() {
 				Prefix:      "[Debug \"nodeWebsocketHTTP\"] ",
 			},
 		}, appWebsocketHTTP.New()),
-	)).Start()
-	<-make(chan bool)
+	)).StartBlocking()
 }
