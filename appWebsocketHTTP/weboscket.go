@@ -15,10 +15,8 @@ import (
 func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() *Config.Websocket {
 	return &Config.Websocket{
 		Pattern: "/ws",
-		Http: &Config.Http{
-			Server: &Config.TcpServer{
-				Port: 8443,
-			},
+		Server: &Config.TcpServer{
+			Port:      8443,
 			Blacklist: []string{},
 			Whitelist: []string{},
 		},
