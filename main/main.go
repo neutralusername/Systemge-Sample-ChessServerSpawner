@@ -51,7 +51,9 @@ func main() {
 		Server: &Config.TcpServer{
 			Port: 8081,
 		},
-		StatusUpdateIntervalMs: 1000,
+		StatusUpdateIntervalMs:         1000,
+		HeapUpdateIntervalMs:           1000,
+		NodeSystemgeCountersIntervalMs: 1000,
 	},
 		Node.New(&Config.Node{
 			Name:           "nodeResolver",
