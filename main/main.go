@@ -52,7 +52,7 @@ func main() {
 			Port: 8081,
 		},
 		NodeStatusIntervalMs:           1000,
-		NodeSystemgeCountersIntervalMs: 1000,
+		NodeSystemgeCounterIntervalMs:  1000,
 		NodeWebsocketCounterIntervalMs: 1000,
 		HeapUpdateIntervalMs:           1000,
 		AutoStart:                      true,
