@@ -290,7 +290,7 @@ func main() {
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
 			BrokerConfigEndpoint: &Config.TcpEndpoint{
-				Address: "127.0.0.1:60003",
+				Address: "127.0.0.1:60007",
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
