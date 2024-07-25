@@ -27,7 +27,7 @@ func main() {
 	Node.New(&Config.Node{
 		Name:           "dashboard",
 		RandomizerSeed: Tools.GetSystemTime(),
-		ErrorLogger: &Config.Logger{
+		/* ErrorLogger: &Config.Logger{
 			Path:        LOGGER_PATH,
 			QueueBuffer: 10000,
 			Prefix:      "[Error \"dashboard\"] ",
@@ -46,7 +46,7 @@ func main() {
 			Path:        LOGGER_PATH,
 			QueueBuffer: 10000,
 			Prefix:      "[Debug \"dashboard\"] ",
-		},
+		}, */
 	}, Dashboard.New(&Config.Dashboard{
 		Server: &Config.TcpServer{
 			Port: 8081,
@@ -58,6 +58,7 @@ func main() {
 		NodeResolverCounterIntervalMs:  1000,
 		HeapUpdateIntervalMs:           1000,
 		AutoStart:                      true,
+		AddSpawnedNodesToDashboard:     true,
 	},
 		Node.New(&Config.Node{
 			Name:           "nodeResolver",
