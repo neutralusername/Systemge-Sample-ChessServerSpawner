@@ -33,22 +33,20 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
 			node.WebsocketGroupcast(message.GetOrigin(), message)
-			err := node.RemoveFromWebsocketGroup(gameId, ids[0])
+			err := node.RemoveFromWebsocketGroup(gameId, ids...)
 			if err != nil {
 				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-					errorLogger.Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
-				}
-			}
-			err = node.RemoveFromWebsocketGroup(gameId, ids[1])
-			if err != nil {
-				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-					errorLogger.Log(Error.New("Error removing \""+ids[1]+"\" from group \""+gameId+"\"", err).Error())
+					errorLogger.Log(Error.New("Error removing from websocket group", err).Error())
 				}
 			}
 			app.mutex.Lock()
 			delete(app.nodeIds, ids[0])
 			delete(app.nodeIds, ids[1])
 			app.mutex.Unlock()
+			_, err = node.SyncMessage(topics.DESPAWN_NODE_SYNC, node.GetName(), gameId)
+			if err != nil {
+				panic(Error.New("Error despawning game node", err))
+			}
 			return nil
 		},
 	}
@@ -59,20 +57,14 @@ func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Node.SyncMessag
 		topics.PROPAGATE_GAMESTART: func(node *Node.Node, message *Message.Message) (string, error) {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
-			err := node.AddToWebsocketGroup(gameId, ids[0])
+			err := node.AddToWebsocketGroup(gameId, ids...)
 			if err != nil {
 				return "", Error.New("Error adding \""+ids[0]+"\" to group \""+gameId+"\"", err)
 			}
-			err = node.AddToWebsocketGroup(gameId, ids[1])
-			if err != nil {
-				err := node.RemoveFromWebsocketGroup(gameId, ids[0])
-				if err != nil {
-					if warningLogger := node.GetWarningLogger(); warningLogger != nil {
-						warningLogger.Log(Error.New("Error removing \""+ids[0]+"\" from group \""+gameId+"\"", err).Error())
-					}
-				}
-				return "", Error.New("Error adding \""+ids[1]+"\" to group \""+gameId+"\"", err)
-			}
+			app.mutex.Lock()
+			app.nodeIds[ids[0]] = gameId
+			app.nodeIds[ids[1]] = gameId
+			app.mutex.Unlock()
 			node.WebsocketGroupcast(gameId, message)
 			return "", nil
 		},

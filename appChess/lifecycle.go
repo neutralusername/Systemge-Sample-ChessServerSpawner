@@ -12,12 +12,6 @@ func (app *App) OnStart(node *Node.Node) error {
 		if warningLogger := node.GetWarningLogger(); warningLogger != nil {
 			warningLogger.Log(Error.New("Error sending sync message", err).Error())
 		}
-		err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), node.GetName())
-		if err != nil {
-			if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-				errorLogger.Log(Error.New("Error sending async message", err).Error())
-			}
-		}
 	}
 	return nil
 }

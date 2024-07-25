@@ -37,7 +37,6 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 	return map[string]Node.WebsocketMessageHandler{
 		"startGame": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
-			defer app.mutex.Unlock()
 			whiteId := websocketClient.GetId()
 			blackId := message.GetPayload()
 			if !node.WebsocketClientExists(blackId) {
@@ -52,13 +51,16 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if app.nodeIds[blackId] != "" {
 				return Error.New("Opponent is already in a game", nil)
 			}
+			app.mutex.Unlock()
 			gameId := whiteId + "-" + blackId
-			_, err := node.SyncMessage(topics.START_NODE_SYNC, node.GetName(), gameId)
+			_, err := node.SyncMessage(topics.SPAWN_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				return Error.New("Error spawning new game node", err)
 			}
-			app.nodeIds[whiteId] = gameId
-			app.nodeIds[blackId] = gameId
+			_, err = node.SyncMessage(topics.START_NODE_SYNC, node.GetName(), gameId)
+			if err != nil {
+				return Error.New("Error starting new game node", err)
+			}
 			return nil
 		},
 		"endGame": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
@@ -68,7 +70,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), gameId)
+			_, err := node.SyncMessage(topics.STOP_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 					errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())
@@ -127,7 +129,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if gameId == "" {
 		return
 	}
-	err := node.AsyncMessage(topics.END_NODE_ASYNC, node.GetName(), gameId)
+	err := node.AsyncMessage(topics.STOP_NODE_ASYNC, node.GetName(), gameId)
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())

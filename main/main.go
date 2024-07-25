@@ -141,9 +141,8 @@ func main() {
 				Domain:  "example.com",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 			},
-			SyncTopics:  []string{topics.END_NODE_SYNC, topics.START_NODE_SYNC},
-			AsyncTopics: []string{topics.END_NODE_ASYNC, topics.START_NODE_ASYNC},
-
+			SyncTopics:            []string{topics.STOP_NODE_SYNC, topics.START_NODE_SYNC, topics.SPAWN_NODE_SYNC, topics.DESPAWN_NODE_SYNC},
+			AsyncTopics:           []string{topics.STOP_NODE_ASYNC, topics.START_NODE_ASYNC, topics.SPAWN_NODE_ASYNC, topics.DESPAWN_NODE_ASYNC},
 			SyncResponseTimeoutMs: 10000,
 			TcpTimeoutMs:          5000,
 		})),
