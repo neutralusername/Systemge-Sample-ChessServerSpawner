@@ -27,26 +27,6 @@ func main() {
 	Node.New(&Config.Node{
 		Name:           "dashboard",
 		RandomizerSeed: Tools.GetSystemTime(),
-		/* ErrorLogger: &Config.Logger{
-			Path:        LOGGER_PATH,
-			QueueBuffer: 10000,
-			Prefix:      "[Error \"dashboard\"] ",
-		},
-		WarningLogger: &Config.Logger{
-			Path:        LOGGER_PATH,
-			QueueBuffer: 10000,
-			Prefix:      "[Warning \"dashboard\"] ",
-		},
-		InfoLogger: &Config.Logger{
-			Path:        LOGGER_PATH,
-			QueueBuffer: 10000,
-			Prefix:      "[Info \"dashboard\"] ",
-		},
-		DebugLogger: &Config.Logger{
-			Path:        LOGGER_PATH,
-			QueueBuffer: 10000,
-			Prefix:      "[Debug \"dashboard\"] ",
-		}, */
 	}, Dashboard.New(&Config.Dashboard{
 		Server: &Config.TcpServer{
 			Port: 8081,
