@@ -5,7 +5,7 @@ import (
 	"Systemge/Error"
 	"Systemge/Message"
 	"Systemge/Node"
-	"SystemgeSampleChessServer/topics"
+	"Systemge/Spawner"
 	"net/http"
 	"strings"
 
@@ -53,11 +53,11 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			}
 			app.mutex.Unlock()
 			gameId := whiteId + "-" + blackId
-			_, err := node.SyncMessage(topics.SPAWN_NODE_SYNC, node.GetName(), gameId)
+			_, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				return Error.New("Error spawning new game node", err)
 			}
-			_, err = node.SyncMessage(topics.START_NODE_SYNC, node.GetName(), gameId)
+			_, err = node.SyncMessage(Spawner.START_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				return Error.New("Error starting new game node", err)
 			}
@@ -70,7 +70,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			_, err := node.SyncMessage(topics.STOP_NODE_SYNC, node.GetName(), gameId)
+			_, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 					errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())
@@ -129,7 +129,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if gameId == "" {
 		return
 	}
-	err := node.AsyncMessage(topics.STOP_NODE_ASYNC, node.GetName(), gameId)
+	err := node.AsyncMessage(Spawner.STOP_NODE_ASYNC, node.GetName(), gameId)
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())

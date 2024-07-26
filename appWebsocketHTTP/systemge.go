@@ -6,6 +6,7 @@ import (
 	"Systemge/Helpers"
 	"Systemge/Message"
 	"Systemge/Node"
+	"Systemge/Spawner"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 )
@@ -43,7 +44,7 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			delete(app.nodeIds, ids[0])
 			delete(app.nodeIds, ids[1])
 			app.mutex.Unlock()
-			_, err = node.SyncMessage(topics.DESPAWN_NODE_SYNC, node.GetName(), gameId)
+			_, err = node.SyncMessage(Spawner.DESPAWN_NODE_SYNC, node.GetName(), gameId)
 			if err != nil {
 				panic(Error.New("Error despawning game node", err))
 			}
