@@ -1,14 +1,15 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Config"
-	"Systemge/Error"
-	"Systemge/Helpers"
-	"Systemge/Message"
-	"Systemge/Node"
-	"Systemge/Spawner"
 	"SystemgeSampleChessServer/topics"
 	"strings"
+
+	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/Error"
+	"github.com/neutralusername/Systemge/Helpers"
+	"github.com/neutralusername/Systemge/Message"
+	"github.com/neutralusername/Systemge/Node"
+	"github.com/neutralusername/Systemge/Spawner"
 )
 
 func (app *AppWebsocketHTTP) GetSystemgeComponentConfig() *Config.Systemge {

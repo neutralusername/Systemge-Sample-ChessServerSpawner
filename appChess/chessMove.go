@@ -1,8 +1,9 @@
 package appChess
 
 import (
-	"Systemge/Error"
 	"encoding/json"
+
+	"github.com/neutralusername/Systemge/Error"
 )
 
 type ChessMove struct {

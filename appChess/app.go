@@ -1,9 +1,10 @@
 package appChess
 
 import (
-	"Systemge/Node"
 	"strings"
 	"sync"
+
+	"github.com/neutralusername/Systemge/Node"
 )
 
 type App struct {

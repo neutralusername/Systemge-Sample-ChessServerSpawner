@@ -1,6 +1,6 @@
 package appChess
 
-import "Systemge/Helpers"
+import "github.com/neutralusername/Systemge/Helpers"
 
 func (app *App) generateAlgebraicNotation(fromRow, fromCol, toRow, toCol int) string {
 	notation := ""

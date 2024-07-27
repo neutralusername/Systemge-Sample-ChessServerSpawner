@@ -1,9 +1,10 @@
 package appWebsocketHTTP
 
 import (
-	"Systemge/Config"
-	"Systemge/HTTP"
 	"net/http"
+
+	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/HTTP"
 )
 
 func (app *AppWebsocketHTTP) GetHTTPMessageHandlers() map[string]http.HandlerFunc {

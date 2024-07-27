@@ -1,8 +1,9 @@
 package appChess
 
 import (
-	"Systemge/Tools"
 	"strings"
+
+	"github.com/neutralusername/Systemge/Tools"
 )
 
 func (app *App) marshalBoard() string {

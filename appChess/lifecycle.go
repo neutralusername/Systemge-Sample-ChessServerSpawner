@@ -1,9 +1,10 @@
 package appChess
 
 import (
-	"Systemge/Error"
-	"Systemge/Node"
 	"SystemgeSampleChessServer/topics"
+
+	"github.com/neutralusername/Systemge/Error"
+	"github.com/neutralusername/Systemge/Node"
 )
 
 func (app *App) OnStart(node *Node.Node) error {

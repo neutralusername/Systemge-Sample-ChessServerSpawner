@@ -1,12 +1,13 @@
 package appChess
 
 import (
-	"Systemge/Config"
-	"Systemge/Error"
-	"Systemge/Helpers"
-	"Systemge/Message"
-	"Systemge/Node"
 	"strings"
+
+	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/Error"
+	"github.com/neutralusername/Systemge/Helpers"
+	"github.com/neutralusername/Systemge/Message"
+	"github.com/neutralusername/Systemge/Node"
 )
 
 func (app *App) GetSystemgeComponentConfig() *Config.Systemge {
