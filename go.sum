@@ -4,5 +4,9 @@ github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aN
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/neutralusername/Systemge v0.0.0-20240727143039-17372501b83d h1:cPYKupUzBzuBnYOm+QU8Mt0ngrJBK+2POa3mndI4RUg=
 github.com/neutralusername/Systemge v0.0.0-20240727143039-17372501b83d/go.mod h1:LmK0tJ77DhyTAnjr5Zj85hgSLyT3TPWJGH3vJ6Kz7Z8=
+github.com/neutralusername/Systemge v0.0.0-20240727151210-d03115fef475 h1:Tw0LaNjDj66MCXKZmtjXDs3lsC9saJ61Cvj4BsBcEdE=
+github.com/neutralusername/Systemge v0.0.0-20240727151210-d03115fef475/go.mod h1:+oKIYoY+7ma/hz/XUa3Gaw3Di3GzK5I8rahrx9AXUKA=
+github.com/neutralusername/Systemge v0.0.0-20240727152025-0c6d1dc9a14b h1:A4tIZPRkmbY9fBg9SFzBVzj5Ko2HAT94XX4sfc05zs0=
+github.com/neutralusername/Systemge v0.0.0-20240727152025-0c6d1dc9a14b/go.mod h1:+oKIYoY+7ma/hz/XUa3Gaw3Di3GzK5I8rahrx9AXUKA=
 golang.org/x/oauth2 v0.21.0 h1:tsimM75w1tF/uws5rbeHzIWxEqElMehnc+iW793zsZs=
 golang.org/x/oauth2 v0.21.0/go.mod h1:XYTD2NtWslqkgxebSiOHnXEap4TF09sJSc7H1sXbhtI=
