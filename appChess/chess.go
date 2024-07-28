@@ -44,10 +44,10 @@ func get960StartingPosition() [8][8]Piece {
 	bishop2 := randomizer.GenerateRandomNumber(0, 3)*2 + 1
 
 	pieces := []int{0, 1, 2, 3, 4, 5, 6, 7}
-	remove(&pieces, bishop1)
-	remove(&pieces, bishop2)
+	remove(&pieces, int(bishop1))
+	remove(&pieces, int(bishop2))
 	for i := range pieces {
-		j := randomizer.GenerateRandomNumber(0, i)
+		j := randomizer.GenerateRandomNumber(0, int64(i))
 		pieces[i], pieces[j] = pieces[j], pieces[i]
 	}
 

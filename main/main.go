@@ -38,8 +38,10 @@ func main() {
 		NodeBrokerCounterIntervalMs:    1000,
 		NodeResolverCounterIntervalMs:  1000,
 		HeapUpdateIntervalMs:           1000,
+		NodeSpawnerCounterIntervalMs:   1000,
+		NodeHTTPCounterIntervalMs:      1000,
 		AutoStart:                      true,
-		AddSpawnedNodesToDashboard:     true,
+		EnableDashboardCounters:        true,
 	},
 		Node.New(&Config.Node{
 			Name:           "nodeResolver",
@@ -159,8 +161,9 @@ func main() {
 			WarningLogger:  Tools.NewLogger("[Warning \"nodeSpawner\"] ", loggerQueue),
 			ErrorLogger:    Tools.NewLogger("[Error \"nodeSpawner\"] ", loggerQueue),
 		}, Spawner.New(&Config.Spawner{
-			LoggerQueue:            loggerQueue,
-			IsSpawnedNodeTopicSync: true,
+			LoggerQueue:                 loggerQueue,
+			IsSpawnedNodeTopicSync:      true,
+			PropagateSpawnedNodeChanges: true,
 			ResolverEndpoint: &Config.TcpEndpoint{
 				Address: "127.0.0.1:60000",
 				Domain:  "example.com",
