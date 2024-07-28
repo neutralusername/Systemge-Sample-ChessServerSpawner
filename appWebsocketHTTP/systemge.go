@@ -45,9 +45,11 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			delete(app.nodeIds, ids[0])
 			delete(app.nodeIds, ids[1])
 			app.mutex.Unlock()
-			_, err = node.SyncMessage(Spawner.DESPAWN_NODE_SYNC, node.GetName(), gameId)
+			err = node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, node.GetName(), gameId)
 			if err != nil {
-				panic(Error.New("Error despawning game node", err))
+				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+					errorLogger.Log(Error.New("Error despawning node", err).Error())
+				}
 			}
 			return nil
 		},
