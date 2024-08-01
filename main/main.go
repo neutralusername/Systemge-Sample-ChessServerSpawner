@@ -14,12 +14,6 @@ import (
 	"github.com/neutralusername/Systemge/Tools"
 )
 
-const RESOLVER_ADDRESS = "127.0.0.1:60000"
-const RESOLVER_NAME_INDICATION = "127.0.0.1"
-const RESOLVER_TLS_CERT_PATH = "MyCertificate.crt"
-const WEBSOCKET_PORT = ":8443"
-const HTTP_PORT = ":8080"
-
 const LOGGER_PATH = "logs.log"
 
 func main() {
