@@ -21,9 +21,9 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
 			node.RemoveOutgoingConnection(tcpEndpointConfig.Address)
 			app.mutex.Lock()
+			defer app.mutex.Unlock()
 			delete(app.gameIds, ids[0])
 			delete(app.gameIds, ids[1])
-			app.mutex.Unlock()
 			return nil
 		},
 		topics.PROPAGATE_GAMESTART: func(node *Node.Node, message *Message.Message) error {

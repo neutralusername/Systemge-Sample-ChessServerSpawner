@@ -45,13 +45,11 @@ func main() {
 		Spawner.New(&Config.Spawner{
 			PropagateSpawnedNodeChanges: true,
 			NodeConfig: &Config.Node{
-				Name:                      "nodeSpawner",
-				RandomizerSeed:            Tools.GetSystemTime(),
-				InfoLoggerPath:            LOGGER_PATH,
-				WarningLoggerPath:         LOGGER_PATH,
-				ErrorLoggerPath:           LOGGER_PATH,
-				InternalInfoLoggerPath:    LOGGER_PATH,
-				InternalWarningLoggerPath: LOGGER_PATH,
+				Name:              "nodeSpawner",
+				RandomizerSeed:    Tools.GetSystemTime(),
+				InfoLoggerPath:    LOGGER_PATH,
+				WarningLoggerPath: LOGGER_PATH,
+				ErrorLoggerPath:   LOGGER_PATH,
 			},
 			SystemgeConfig: &Config.Systemge{
 				HandleMessagesSequentially: false,
@@ -82,13 +80,11 @@ func main() {
 		}, appChess.New),
 		Node.New(&Config.NewNode{
 			NodeConfig: &Config.Node{
-				Name:                      "nodeWebsocketHTTP",
-				RandomizerSeed:            Tools.GetSystemTime(),
-				InfoLoggerPath:            LOGGER_PATH,
-				WarningLoggerPath:         LOGGER_PATH,
-				ErrorLoggerPath:           LOGGER_PATH,
-				InternalInfoLoggerPath:    LOGGER_PATH,
-				InternalWarningLoggerPath: LOGGER_PATH,
+				Name:              "nodeWebsocketHTTP",
+				RandomizerSeed:    Tools.GetSystemTime(),
+				InfoLoggerPath:    LOGGER_PATH,
+				WarningLoggerPath: LOGGER_PATH,
+				ErrorLoggerPath:   LOGGER_PATH,
 			},
 			SystemgeConfig: &Config.Systemge{
 				HandleMessagesSequentially: false,

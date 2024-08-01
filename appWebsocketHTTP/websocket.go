@@ -39,13 +39,11 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			port := app.ports.Add(1)
 			responseChannel, err := node.SyncMessage(Spawner.SPAWN_AND_START_NODE_SYNC, Helpers.JsonMarshal(&Config.NewNode{
 				NodeConfig: &Config.Node{
-					Name:                      gameId,
-					RandomizerSeed:            Tools.GetSystemTime(),
-					InfoLoggerPath:            "logs.log",
-					WarningLoggerPath:         "logs.log",
-					ErrorLoggerPath:           "logs.log",
-					InternalInfoLoggerPath:    "logs.log",
-					InternalWarningLoggerPath: "logs.log",
+					Name:              gameId,
+					RandomizerSeed:    Tools.GetSystemTime(),
+					InfoLoggerPath:    "logs.log",
+					WarningLoggerPath: "logs.log",
+					ErrorLoggerPath:   "logs.log",
 				},
 				SystemgeConfig: &Config.Systemge{
 					HandleMessagesSequentially: false,
