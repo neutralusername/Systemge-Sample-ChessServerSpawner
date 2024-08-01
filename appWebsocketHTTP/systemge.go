@@ -1,78 +1,50 @@
 package appWebsocketHTTP
 
 import (
+	"SystemgeSampleChessServer/dto"
 	"SystemgeSampleChessServer/topics"
 	"strings"
 
 	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Error"
-	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/Node"
-	"github.com/neutralusername/Systemge/Spawner"
 )
-
-func (app *AppWebsocketHTTP) GetSystemgeComponentConfig() *Config.Systemge {
-	return &Config.Systemge{
-		HandleMessagesSequentially: false,
-
-		BrokerSubscribeDelayMs:    1000,
-		TopicResolutionLifetimeMs: 10000,
-		SyncResponseTimeoutMs:     10000,
-		TcpTimeoutMs:              5000,
-
-		ResolverEndpoints: []*Config.TcpEndpoint{
-			{
-				Address: "127.0.0.1:60000",
-				Domain:  "example.com",
-				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-			},
-		},
-	}
-}
 
 func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
 	return map[string]Node.AsyncMessageHandler{
 		topics.PROPAGATE_GAMEEND: func(node *Node.Node, message *Message.Message) error {
 			gameId := message.GetOrigin()
 			ids := strings.Split(gameId, "-")
-			node.WebsocketGroupcast(message.GetOrigin(), message)
-			err := node.RemoveFromWebsocketGroup(gameId, ids...)
-			if err != nil {
-				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-					errorLogger.Log(Error.New("Error removing from websocket group", err).Error())
-				}
-			}
+			node.WebsocketGroupcast(gameId, message)
+			node.RemoveFromWebsocketGroup(gameId, ids...)
+			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
+			node.RemoveOutgoingConnection(tcpEndpointConfig.Address)
 			app.mutex.Lock()
-			delete(app.nodeIds, ids[0])
-			delete(app.nodeIds, ids[1])
+			delete(app.gameIds, ids[0])
+			delete(app.gameIds, ids[1])
 			app.mutex.Unlock()
-			err = node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, node.GetName(), gameId)
+			return nil
+		},
+		topics.PROPAGATE_GAMESTART: func(node *Node.Node, message *Message.Message) error {
+			gameId := message.GetOrigin()
+			gameStart := dto.UnmarshalGameStart(message.GetPayload())
+			ids := strings.Split(gameId, "-")
+			err := node.AddToWebsocketGroup(gameId, ids...)
 			if err != nil {
-				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-					errorLogger.Log(Error.New("Error despawning node", err).Error())
-				}
+				panic(Error.New("Error adding \""+ids[0]+"\" to group \""+gameId+"\"", err))
 			}
+			node.StartOutgoingConnectionLoop(gameStart.TcpEndpointConfig)
+			app.mutex.Lock()
+			app.gameIds[ids[0]] = gameId
+			app.gameIds[ids[1]] = gameId
+			app.mutex.Unlock()
+			node.WebsocketGroupcast(gameId, Message.NewAsync("propagate_gameStart", gameStart.Board))
 			return nil
 		},
 	}
 }
 
 func (app *AppWebsocketHTTP) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
-	return map[string]Node.SyncMessageHandler{
-		topics.PROPAGATE_GAMESTART: func(node *Node.Node, message *Message.Message) (string, error) {
-			gameId := message.GetOrigin()
-			ids := strings.Split(gameId, "-")
-			err := node.AddToWebsocketGroup(gameId, ids...)
-			if err != nil {
-				return "", Error.New("Error adding \""+ids[0]+"\" to group \""+gameId+"\"", err)
-			}
-			app.mutex.Lock()
-			app.nodeIds[ids[0]] = gameId
-			app.nodeIds[ids[1]] = gameId
-			app.mutex.Unlock()
-			node.WebsocketGroupcast(gameId, message)
-			return "", nil
-		},
-	}
+	return map[string]Node.SyncMessageHandler{}
 }

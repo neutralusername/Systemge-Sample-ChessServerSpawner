@@ -1,38 +1,16 @@
 package appWebsocketHTTP
 
 import (
-	"net/http"
-	"strings"
+	"SystemgeSampleChessServer/dto"
 
 	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Error"
+	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/Node"
 	"github.com/neutralusername/Systemge/Spawner"
-
-	"github.com/gorilla/websocket"
+	"github.com/neutralusername/Systemge/Tools"
 )
-
-func (app *AppWebsocketHTTP) GetWebsocketComponentConfig() *Config.Websocket {
-	return &Config.Websocket{
-		Pattern: "/ws",
-		Server: &Config.TcpServer{
-			Port:      8443,
-			Blacklist: []string{},
-			Whitelist: []string{},
-		},
-		HandleClientMessagesSequentially: false,
-		ClientMessageCooldownMs:          0,
-		ClientWatchdogTimeoutMs:          20000,
-		Upgrader: &websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		},
-	}
-}
 
 func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.WebsocketMessageHandler {
 	return map[string]Node.WebsocketMessageHandler{
@@ -41,96 +19,151 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			whiteId := websocketClient.GetId()
 			blackId := message.GetPayload()
 			if !node.WebsocketClientExists(blackId) {
+				app.mutex.Unlock()
 				return Error.New("Opponent does not exist", nil)
 			}
 			if blackId == whiteId {
+				app.mutex.Unlock()
 				return Error.New("You cannot play against yourself", nil)
 			}
-			if app.nodeIds[whiteId] != "" {
+			if app.gameIds[whiteId] != "" {
+				app.mutex.Unlock()
 				return Error.New("You are already in a game", nil)
 			}
-			if app.nodeIds[blackId] != "" {
+			if app.gameIds[blackId] != "" {
+				app.mutex.Unlock()
 				return Error.New("Opponent is already in a game", nil)
 			}
 			app.mutex.Unlock()
 			gameId := whiteId + "-" + blackId
-			_, err := node.SyncMessage(Spawner.SPAWN_NODE_SYNC, node.GetName(), gameId)
+			port := app.ports.Add(1)
+			responseChannel, err := node.SyncMessage(Spawner.SPAWN_AND_START_NODE_SYNC, Helpers.JsonMarshal(&Config.NewNode{
+				NodeConfig: &Config.Node{
+					Name:                      gameId,
+					RandomizerSeed:            Tools.GetSystemTime(),
+					InfoLoggerPath:            "logs.log",
+					WarningLoggerPath:         "logs.log",
+					ErrorLoggerPath:           "logs.log",
+					InternalInfoLoggerPath:    "logs.log",
+					InternalWarningLoggerPath: "logs.log",
+				},
+				SystemgeConfig: &Config.Systemge{
+					HandleMessagesSequentially: false,
+
+					SyncRequestTimeoutMs:            10000,
+					TcpTimeoutMs:                    5000,
+					MaxConnectionAttempts:           0,
+					ConnectionAttemptDelayMs:        1000,
+					StopAfterOutgoingConnectionLoss: true,
+					ServerConfig: &Config.TcpServer{
+						Port:        uint16(port),
+						TlsCertPath: "MyCertificate.crt",
+						TlsKeyPath:  "MyKey.key",
+					},
+					Endpoint: &Config.TcpEndpoint{
+						Address: "127.0.0.1:" + Helpers.IntToString(int(port)),
+						TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+						Domain:  "example.com",
+					},
+					EndpointConfigs: []*Config.TcpEndpoint{
+						{
+							Address: "localhost:60001",
+							TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+							Domain:  "example.com",
+						},
+						{
+							Address: "localhost:60002",
+							TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+							Domain:  "example.com",
+						},
+					},
+					IncomingMessageByteLimit: 0,
+					MaxPayloadSize:           0,
+					MaxTopicSize:             0,
+					MaxSyncTokenSize:         0,
+					SyncResponseLimit:        1,
+					MaxNodeNameSize:          0,
+				},
+			}))
 			if err != nil {
-				return Error.New("Error spawning new game node", err)
+				return Error.New("Error spawning game", err)
 			}
-			_, err = node.SyncMessage(Spawner.START_NODE_SYNC, node.GetName(), gameId)
+			response, err := responseChannel.ReceiveResponse()
 			if err != nil {
-				return Error.New("Error starting new game node", err)
+				return Error.New("Error receiving game response", err)
+			}
+			if response.GetTopic() == Message.TOPIC_FAILURE {
+				return Error.New(response.GetPayload(), nil)
 			}
 			return nil
 		},
 		"endGame": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
-			gameId := app.nodeIds[websocketClient.GetId()]
+			gameId := app.gameIds[websocketClient.GetId()]
 			app.mutex.Unlock()
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			_, err := node.SyncMessage(Spawner.STOP_NODE_SYNC, node.GetName(), gameId)
+			responseChannel, err := node.SyncMessage(Spawner.STOP_AND_DESPAWN_NODE_SYNC, gameId)
 			if err != nil {
-				if errorLogger := node.GetErrorLogger(); errorLogger != nil {
-					errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())
-				}
+				return Error.New("Error sending end message", err)
+			}
+			response, err := responseChannel.ReceiveResponse()
+			if err != nil {
+				return Error.New("Error receiving end response", err)
+			}
+			if response.GetTopic() == Message.TOPIC_FAILURE {
+				return Error.New(response.GetPayload(), nil)
 			}
 			return nil
 		},
 		"move": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
-			gameId := app.nodeIds[websocketClient.GetId()]
+			gameId := app.gameIds[websocketClient.GetId()]
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			moveSegments := strings.Split(message.GetPayload(), " ")
-			if len(moveSegments) != 4 {
-				return Error.New("Invalid move format", nil)
-			}
-			err := app.handleMove(node, gameId, websocketClient.GetId(), message.GetPayload())
+			move, err := dto.UnmarshalMove(message.GetPayload())
 			if err != nil {
-				return Error.New("Error handling move", err)
+				return Error.New("Error unmarshalling move", err)
 			}
+			move.PlayerId = websocketClient.GetId()
+			responseChannel, err := node.SyncMessage(gameId, Helpers.JsonMarshal(move))
+			if err != nil {
+				return Error.New("Error sending move message", err)
+			}
+			response, err := responseChannel.ReceiveResponse()
+			if err != nil {
+				return Error.New("Error receiving move response", err)
+			}
+			if response.GetTopic() == Message.TOPIC_FAILURE {
+				return Error.New(response.GetPayload(), nil)
+			}
+			node.WebsocketGroupcast(gameId, Message.NewAsync("propagate_move", response.GetPayload()))
 			return nil
 		},
 	}
 }
 
-func (app *AppWebsocketHTTP) handleMove(node *Node.Node, gameId, playerId, move string) error {
-	segments := strings.Split(move, " ")
-	if len(segments) != 4 {
-		return Error.New("Invalid message format", nil)
-	}
-	responseMessage, err := node.SyncMessage(gameId, playerId, move)
-	if err != nil {
-		return Error.New("Error sending move message", err)
-	}
-	node.WebsocketGroupcast(gameId, Message.NewAsync("propagate_move", responseMessage.GetOrigin(), responseMessage.GetPayload()))
-	return nil
-
-}
-
 func (app *AppWebsocketHTTP) OnConnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
-	err := websocketClient.Send(Message.NewAsync("connected", node.GetName(), websocketClient.GetId()).Serialize())
+	err := websocketClient.Send(Message.NewAsync("connected", websocketClient.GetId()).Serialize())
 	if err != nil {
-		websocketClient.Disconnect()
-		if warningLogger := node.GetWarningLogger(); warningLogger != nil {
-			warningLogger.Log(Error.New("Error sending connected message", err).Error())
+		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
+			errorLogger.Log(Error.New("Error sending connected message", err).Error())
 		}
+		websocketClient.Disconnect()
 	}
 }
 
 func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClient *Node.WebsocketClient) {
 	app.mutex.Lock()
-	gameId := app.nodeIds[websocketClient.GetId()]
+	gameId := app.gameIds[websocketClient.GetId()]
 	app.mutex.Unlock()
 	if gameId == "" {
 		return
 	}
-	err := node.AsyncMessage(Spawner.STOP_NODE_ASYNC, node.GetName(), gameId)
+	err := node.AsyncMessage(Spawner.STOP_AND_DESPAWN_NODE_ASYNC, gameId)
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())

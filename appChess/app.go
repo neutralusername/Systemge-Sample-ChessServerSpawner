@@ -1,31 +1,23 @@
 package appChess
 
 import (
-	"strings"
+	"SystemgeSampleChessServer/dto"
 	"sync"
 
 	"github.com/neutralusername/Systemge/Node"
 )
 
 type App struct {
-	gameId  string
 	whiteId string
 	blackId string
 	board   [8][8]Piece
-	moves   []ChessMove
+	moves   []*dto.Move
 	mutex   sync.Mutex
-	mode960 bool
 }
 
-func New(id string) Node.Application {
-	ids := strings.Split(id, "-")
-	app := &App{
-		gameId:  id,
-		whiteId: ids[0],
-		blackId: ids[1],
-		mode960: false,
-	}
-	if app.mode960 {
+func New() Node.Application {
+	app := &App{}
+	if false {
 		app.board = get960StartingPosition()
 	} else {
 		app.board = getStandardStartingPosition()

@@ -1,33 +1,13 @@
 package appChess
 
 import (
-	"strings"
+	"SystemgeSampleChessServer/dto"
 
-	"github.com/neutralusername/Systemge/Config"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
 	"github.com/neutralusername/Systemge/Node"
 )
-
-func (app *App) GetSystemgeComponentConfig() *Config.Systemge {
-	return &Config.Systemge{
-		HandleMessagesSequentially: false,
-
-		BrokerSubscribeDelayMs:    1000,
-		TopicResolutionLifetimeMs: 10000,
-		SyncResponseTimeoutMs:     10000,
-		TcpTimeoutMs:              5000,
-
-		ResolverEndpoints: []*Config.TcpEndpoint{
-			{
-				Address: "127.0.0.1:60000",
-				Domain:  "example.com",
-				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-			},
-		},
-	}
-}
 
 func (app *App) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
 	return map[string]Node.AsyncMessageHandler{}
@@ -35,30 +15,30 @@ func (app *App) GetAsyncMessageHandlers() map[string]Node.AsyncMessageHandler {
 
 func (app *App) GetSyncMessageHandlers() map[string]Node.SyncMessageHandler {
 	return map[string]Node.SyncMessageHandler{
-		app.gameId: func(node *Node.Node, message *Message.Message) (string, error) {
-			segments := strings.Split(message.GetPayload(), " ")
-			if len(segments) != 4 {
-				return "", Error.New("Invalid message format", nil)
+		app.whiteId + "-" + app.blackId: func(node *Node.Node, message *Message.Message) (string, error) {
+			move, err := dto.UnmarshalMove(message.GetPayload())
+			if err != nil {
+				return "", Error.New("Error unmarshalling move", err)
 			}
-			chessMove, err := app.handleMoveRequest(message.GetOrigin(), Helpers.StringToInt(segments[0]), Helpers.StringToInt(segments[1]), Helpers.StringToInt(segments[2]), Helpers.StringToInt(segments[3]))
+			chessMove, err := app.handleMoveRequest(move)
 			if err != nil {
 				return "", err
 			}
-			return chessMove.Marshal(), nil
+			return Helpers.JsonMarshal(chessMove), nil
 		},
 	}
 }
 
-func (app *App) handleMoveRequest(playerId string, rowFrom, colFrom, rowTo, colTo int) (*ChessMove, error) {
+func (app *App) handleMoveRequest(move *dto.Move) (*dto.Move, error) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
-	if app.isWhiteTurn() && playerId != app.whiteId {
+	if app.isWhiteTurn() && move.PlayerId != app.whiteId {
 		return nil, Error.New("Not your turn", nil)
 	}
-	if !app.isWhiteTurn() && playerId != app.blackId {
+	if !app.isWhiteTurn() && move.PlayerId != app.blackId {
 		return nil, Error.New("Not your turn", nil)
 	}
-	chessMove, err := app.move(rowFrom, colFrom, rowTo, colTo)
+	chessMove, err := app.move(move)
 	if err != nil {
 		return nil, Error.New("Invalid move", err)
 	}

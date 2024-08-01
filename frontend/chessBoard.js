@@ -37,7 +37,12 @@ export class chessBoard extends React.Component {
                                     })
                                     return
                                 }
-                                this.props.WS_CONNECTION.send(this.props.constructMessage("move", this.props.selected.row + " " + this.props.selected.col + " " + i + " " + j))
+                                this.props.WS_CONNECTION.send(this.props.constructMessage("move", JSON.stringify({
+                                    fromRow : this.props.selected.row,
+                                    fromCol : this.props.selected.col,
+                                    toRow : i,
+                                    toCol : j,
+                                })))
                                 this.props.setStateRoot({
                                     selected : null,
                                 })

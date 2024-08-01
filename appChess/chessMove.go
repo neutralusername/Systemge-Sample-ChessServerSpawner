@@ -1,68 +1,45 @@
 package appChess
 
 import (
-	"encoding/json"
+	"SystemgeSampleChessServer/dto"
 
 	"github.com/neutralusername/Systemge/Error"
 )
 
-type ChessMove struct {
-	FromRow           int    `json:"fromRow"`
-	FromCol           int    `json:"fromCol"`
-	ToRow             int    `json:"toRow"`
-	ToCol             int    `json:"toCol"`
-	AlgebraicNotation string `json:"algebraicNotation"`
-}
-
-func (chessMove *ChessMove) Marshal() string {
-	json, _ := json.Marshal(chessMove)
-	return string(json)
-}
-
-func newChessMove(fromRow, fromCol, toRow, toCol int, algebraicNotation string) *ChessMove {
-	return &ChessMove{
-		FromRow:           fromRow,
-		FromCol:           fromCol,
-		ToRow:             toRow,
-		ToCol:             toCol,
-		AlgebraicNotation: algebraicNotation,
-	}
-}
-
-func (app *App) move(fromRow, fromCol, toRow, toCol int) (*ChessMove, error) {
-	piece := app.board[fromRow][fromCol]
+func (app *App) move(move *dto.Move) (*dto.Move, error) {
+	piece := app.board[move.FromRow][move.FromCol]
 	if piece == nil {
 		return nil, Error.New("no piece at from coordinates", nil)
 	}
 	if app.isWhiteTurn() != piece.isWhite() {
 		return nil, Error.New("Cannot move opponent's piece", nil)
 	}
-	if err := app.isLegalMove(fromRow, fromCol, toRow, toCol); err != nil {
+	if err := app.isLegalMove(move.FromRow, move.FromCol, move.ToRow, move.ToCol); err != nil {
 		return nil, Error.New("Illegal move", err)
 	}
-	notation := app.generateAlgebraicNotation(fromRow, fromCol, toRow, toCol)
+	notation := app.generateAlgebraicNotation(move.FromRow, move.FromCol, move.ToRow, move.ToCol)
 	switch piece.(type) {
 	case *King:
-		if fromCol-toCol == 2 {
-			app.board[fromRow][fromCol-4], app.board[fromRow][fromCol-1] = app.board[fromRow][fromCol-1], app.board[fromRow][fromCol-4]
-		} else if fromCol-toCol == -2 {
-			app.board[fromRow][fromCol+3], app.board[fromRow][fromCol+1] = app.board[fromRow][fromCol+1], app.board[fromRow][fromCol+3]
+		if move.FromCol-move.ToCol == 2 {
+			app.board[move.FromRow][move.FromCol-4], app.board[move.FromRow][move.FromCol-1] = app.board[move.FromRow][move.FromCol-1], app.board[move.FromRow][move.FromCol-4]
+		} else if move.FromCol-move.ToCol == -2 {
+			app.board[move.FromRow][move.FromCol+3], app.board[move.FromRow][move.FromCol+1] = app.board[move.FromRow][move.FromCol+1], app.board[move.FromRow][move.FromCol+3]
 		}
 		piece.(*King).hasMoved = true
 	case *Pawn:
-		if fromCol != toCol && app.board[toRow][toCol] == nil {
-			app.board[toRow-1][toCol] = nil
+		if move.FromCol != move.ToCol && app.board[move.ToRow][move.ToCol] == nil {
+			app.board[move.ToRow-1][move.ToCol] = nil
 		}
-		if toRow == 0 || toRow == 7 {
-			app.board[fromRow][fromCol] = &Queen{white: piece.isWhite()}
+		if move.ToRow == 0 || move.ToRow == 7 {
+			app.board[move.FromRow][move.FromCol] = &Queen{white: piece.isWhite()}
 		}
 	case *Rook:
 		piece.(*Rook).hasMoved = true
 	}
-	app.board[toRow][toCol] = app.board[fromRow][fromCol]
-	app.board[fromRow][fromCol] = nil
-	move := newChessMove(fromRow, fromCol, toRow, toCol, notation)
-	app.moves = append(app.moves, *move)
+	app.board[move.ToRow][move.ToCol] = app.board[move.FromRow][move.FromCol]
+	app.board[move.FromRow][move.FromCol] = nil
+	move.AlgebraicNotation = notation
+	app.moves = append(app.moves, move)
 	return move, nil
 }
 
