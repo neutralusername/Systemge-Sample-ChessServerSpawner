@@ -117,8 +117,8 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 		},
 		"move": func(node *Node.Node, websocketClient *Node.WebsocketClient, message *Message.Message) error {
 			app.mutex.Lock()
-			defer app.mutex.Unlock()
 			gameId := app.gameIds[websocketClient.GetId()]
+			app.mutex.Unlock()
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
