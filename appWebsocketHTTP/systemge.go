@@ -19,7 +19,9 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			node.WebsocketGroupcast(gameId, message)
 			node.RemoveFromWebsocketGroup(gameId, ids...)
 			tcpEndpointConfig := Config.UnmarshalTcpEndpoint(message.GetPayload())
-			node.DisconnectFromNode(tcpEndpointConfig.Address)
+			if err := node.DisconnectFromNode(tcpEndpointConfig.Address); err != nil {
+				panic(Error.New("Error disconnecting from \""+tcpEndpointConfig.Address+"\"", err))
+			}
 			app.mutex.Lock()
 			defer app.mutex.Unlock()
 			delete(app.gameIds, ids[0])
@@ -34,7 +36,9 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			if err != nil {
 				panic(Error.New("Error adding \""+ids[0]+"\" to group \""+gameId+"\"", err))
 			}
-			node.ConnectToNode(gameStart.TcpEndpointConfig)
+			if err := node.ConnectToNode(gameStart.TcpEndpointConfig); err != nil {
+				panic(Error.New("Error connecting to \""+gameStart.TcpEndpointConfig.Address+"\"", err))
+			}
 			app.mutex.Lock()
 			app.gameIds[ids[0]] = gameId
 			app.gameIds[ids[1]] = gameId
