@@ -3,7 +3,6 @@ package appChess
 import (
 	"SystemgeSampleChessServer/dto"
 	"SystemgeSampleChessServer/topics"
-	"fmt"
 	"strings"
 
 	"github.com/neutralusername/Systemge/Error"
@@ -14,7 +13,9 @@ import (
 func (app *App) OnStart(node *Node.Node) error {
 	gameId := node.GetName()
 	err := node.AddSyncTopic(gameId, app.moveMessageHandler)
-	fmt.Println(err)
+	if err != nil {
+		panic(Error.New("Error adding sync topic", err))
+	}
 	ids := strings.Split(gameId, "-")
 	app.whiteId = ids[0]
 	app.blackId = ids[1]
