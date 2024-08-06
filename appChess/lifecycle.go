@@ -3,6 +3,7 @@ package appChess
 import (
 	"SystemgeSampleChessServer/dto"
 	"SystemgeSampleChessServer/topics"
+	"fmt"
 	"strings"
 
 	"github.com/neutralusername/Systemge/Error"
@@ -12,10 +13,12 @@ import (
 
 func (app *App) OnStart(node *Node.Node) error {
 	gameId := node.GetName()
+	err := node.AddSyncTopic(gameId, app.moveMessageHandler)
+	fmt.Println(err)
 	ids := strings.Split(gameId, "-")
 	app.whiteId = ids[0]
 	app.blackId = ids[1]
-	err := node.AsyncMessage(topics.PROPAGATE_GAMESTART, Helpers.JsonMarshal(&dto.GameStart{
+	err = node.AsyncMessage(topics.PROPAGATE_GAMESTART, Helpers.JsonMarshal(&dto.GameStart{
 		Board:             app.marshalBoard(),
 		TcpEndpointConfig: node.GetSystemgeEndpointConfig(),
 	}))
