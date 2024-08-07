@@ -79,7 +79,6 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 					MaxPayloadSize:           0,
 					MaxTopicSize:             0,
 					MaxSyncTokenSize:         0,
-					SyncResponseLimit:        1,
 					MaxNodeNameSize:          0,
 				},
 			}))
@@ -102,7 +101,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 			if gameId == "" {
 				return Error.New("You are not in a game", nil)
 			}
-			responseChannel, err := node.SyncMessage(Spawner.STOP_AND_DESPAWN_NODE_SYNC, gameId)
+			responseChannel, err := node.SyncMessage(Spawner.DESPAWN_NODE_SYNC, gameId)
 			if err != nil {
 				return Error.New("Error sending end message", err)
 			}
@@ -161,7 +160,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(node *Node.Node, websocketClien
 	if gameId == "" {
 		return
 	}
-	err := node.AsyncMessage(Spawner.STOP_AND_DESPAWN_NODE_ASYNC, gameId)
+	err := node.AsyncMessage(Spawner.DESPAWN_NODE_ASYNC, gameId)
 	if err != nil {
 		if errorLogger := node.GetErrorLogger(); errorLogger != nil {
 			errorLogger.Log(Error.New("Error sending end message for game: "+gameId, err).Error())
