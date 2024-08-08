@@ -36,7 +36,7 @@ func (app *AppWebsocketHTTP) GetAsyncMessageHandlers() map[string]Node.AsyncMess
 			if err != nil {
 				panic(Error.New("Error adding \""+ids[0]+"\" to group \""+gameId+"\"", err))
 			}
-			if err := node.ConnectToNode(gameStart.TcpEndpointConfig); err != nil {
+			if err := node.ConnectToNode(gameStart.TcpEndpointConfig, false); err != nil {
 				panic(Error.New("Error connecting to \""+gameStart.TcpEndpointConfig.Address+"\"", err))
 			}
 			app.mutex.Lock()
