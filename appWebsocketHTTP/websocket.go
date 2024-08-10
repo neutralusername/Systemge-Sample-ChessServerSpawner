@@ -46,7 +46,8 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 					ErrorLoggerPath:   "logs.log",
 				},
 				SystemgeConfig: &Config.Systemge{
-					HandleMessagesSequentially: false,
+					ProcessMessagesOfEachConnectionSequentially: true,
+					ProcessAllMessagesSequentially:              false,
 
 					SyncRequestTimeoutMs:            10000,
 					TcpTimeoutMs:                    5000,
