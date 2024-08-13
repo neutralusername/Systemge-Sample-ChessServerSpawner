@@ -45,15 +45,11 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 					WarningLoggerPath: "logs.log",
 					ErrorLoggerPath:   "logs.log",
 				},
-				SystemgeConfig: &Config.Systemge{
+				SystemgeServerConfig: &Config.SystemgeServer{
+					TcpTimeoutMs: 5000,
 					ProcessMessagesOfEachConnectionSequentially: true,
-					ProcessAllMessagesSequentially:              false,
-
-					SyncRequestTimeoutMs:            10000,
-					TcpTimeoutMs:                    5000,
-					MaxConnectionAttempts:           0,
-					ConnectionAttemptDelayMs:        1000,
-					StopAfterOutgoingConnectionLoss: true,
+					ProcessAllMessagesSequentially:              true,
+					ProcessAllMessagesSequentiallyChannelSize:   10000,
 					ServerConfig: &Config.TcpServer{
 						Port:        uint16(port),
 						TlsCertPath: "MyCertificate.crt",
@@ -64,6 +60,19 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 						TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 						Domain:  "example.com",
 					},
+					TcpBufferBytes:           1024 * 4,
+					IncomingMessageByteLimit: 0,
+					MaxPayloadSize:           0,
+					MaxTopicSize:             0,
+					MaxSyncTokenSize:         0,
+					MaxNodeNameSize:          0,
+				},
+				SystemgeClientConfig: &Config.SystemgeClient{
+					SyncRequestTimeoutMs:            10000,
+					TcpTimeoutMs:                    5000,
+					MaxConnectionAttempts:           0,
+					ConnectionAttemptDelayMs:        1000,
+					StopAfterOutgoingConnectionLoss: true,
 					EndpointConfigs: []*Config.TcpEndpoint{
 						{
 							Address: "localhost:60001",
@@ -76,6 +85,7 @@ func (app *AppWebsocketHTTP) GetWebsocketMessageHandlers() map[string]Node.Webso
 							Domain:  "example.com",
 						},
 					},
+					TcpBufferBytes:           1024 * 4,
 					IncomingMessageByteLimit: 0,
 					MaxPayloadSize:           0,
 					MaxTopicSize:             0,
