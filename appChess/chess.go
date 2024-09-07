@@ -6,7 +6,7 @@ import (
 	"github.com/neutralusername/Systemge/Tools"
 )
 
-func (app *App) marshalBoard() string {
+func (app *AppChess) marshalBoard() string {
 	var builder strings.Builder
 	for _, row := range app.board {
 		for _, piece := range row {
@@ -20,7 +20,7 @@ func (app *App) marshalBoard() string {
 	return builder.String()
 }
 
-func (app *App) isWhiteTurn() bool {
+func (app *AppChess) isWhiteTurn() bool {
 	return len(app.moves)%2 == 0
 }
 

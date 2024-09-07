@@ -7,8 +7,8 @@ import (
 )
 
 type GameStart struct {
-	Board             string              `json:"board"`
-	TcpEndpointConfig *Config.TcpEndpoint `json:"tcpEndpointConfig"`
+	Board           string            `json:"board"`
+	TcpClientConfig *Config.TcpClient `json:"tcpClientConfig"`
 }
 
 func UnmarshalGameStart(str string) *GameStart {

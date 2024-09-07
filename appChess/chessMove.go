@@ -6,7 +6,7 @@ import (
 	"github.com/neutralusername/Systemge/Error"
 )
 
-func (app *App) move(move *dto.Move) (*dto.Move, error) {
+func (app *AppChess) move(move *dto.Move) (*dto.Move, error) {
 	piece := app.board[move.FromRow][move.FromCol]
 	if piece == nil {
 		return nil, Error.New("no piece at from coordinates", nil)
@@ -43,7 +43,7 @@ func (app *App) move(move *dto.Move) (*dto.Move, error) {
 	return move, nil
 }
 
-func (app *App) isLegalMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isLegalMove(fromRow, fromCol, toRow, toCol int) error {
 	if fromRow < 0 || fromRow > 7 || fromCol < 0 || fromCol > 7 || toRow < 0 || toRow > 7 || toCol < 0 || toCol > 7 {
 		return Error.New("coordinates out of bounds", nil)
 	}
@@ -88,7 +88,7 @@ func (app *App) isLegalMove(fromRow, fromCol, toRow, toCol int) error {
 	return nil
 }
 
-func (app *App) isInCheckAfterMove(fromRow, fromCol, toRow, toCol int) bool {
+func (app *AppChess) isInCheckAfterMove(fromRow, fromCol, toRow, toCol int) bool {
 	kingRow, kingCol := app.getKingCoordinates(app.isWhiteTurn())
 	if kingRow == -1 || kingCol == -1 {
 		return false
@@ -117,7 +117,7 @@ func (app *App) isInCheckAfterMove(fromRow, fromCol, toRow, toCol int) bool {
 	return false
 }
 
-func (app *App) getKingCoordinates(isWhite bool) (int, int) {
+func (app *AppChess) getKingCoordinates(isWhite bool) (int, int) {
 	for i, row := range app.board {
 		for j, piece := range row {
 			if king, ok := piece.(*King); ok {
@@ -130,7 +130,7 @@ func (app *App) getKingCoordinates(isWhite bool) (int, int) {
 	return -1, -1
 }
 
-func (app *App) isValidKnightMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isValidKnightMove(fromRow, fromCol, toRow, toCol int) error {
 	if (fromRow-toRow != 2 && fromRow-toRow != -2) || (fromCol-toCol != 1 && fromCol-toCol != -1) {
 		if (fromRow-toRow != 1 && fromRow-toRow != -1) || (fromCol-toCol != 2 && fromCol-toCol != -2) {
 			return Error.New("knight can only move in L shape", nil)
@@ -139,7 +139,7 @@ func (app *App) isValidKnightMove(fromRow, fromCol, toRow, toCol int) error {
 	return nil
 }
 
-func (app *App) isValidPawnMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isValidPawnMove(fromRow, fromCol, toRow, toCol int) error {
 	fromPiece := app.board[fromRow][fromCol].(*Pawn)
 	toPiece := app.board[toRow][toCol]
 
@@ -216,14 +216,14 @@ func (app *App) isValidPawnMove(fromRow, fromCol, toRow, toCol int) error {
 	}
 }
 
-func (app *App) isValidKingMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isValidKingMove(fromRow, fromCol, toRow, toCol int) error {
 	if fromRow-toRow > 1 || fromRow-toRow < -1 || fromCol-toCol > 1 || fromCol-toCol < -1 {
 		return Error.New("king can only move one square in any direction", nil)
 	}
 	return nil
 }
 
-func (app *App) isValidCastleMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isValidCastleMove(fromRow, fromCol, toRow, toCol int) error {
 	king := app.board[fromRow][fromCol].(*King)
 	if king.hasMoved {
 		return Error.New("king has already moved", nil)
@@ -266,7 +266,7 @@ func (app *App) isValidCastleMove(fromRow, fromCol, toRow, toCol int) error {
 	return nil
 }
 
-func (app *App) isValidBishopMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isValidBishopMove(fromRow, fromCol, toRow, toCol int) error {
 	if fromRow-toRow != fromCol-toCol && fromRow-toRow != toCol-fromCol {
 		return Error.New("bishop can only move diagonally", nil)
 	}
@@ -303,7 +303,7 @@ func (app *App) isValidBishopMove(fromRow, fromCol, toRow, toCol int) error {
 
 }
 
-func (app *App) isValidRookMove(fromRow, fromCol, toRow, toCol int) error {
+func (app *AppChess) isValidRookMove(fromRow, fromCol, toRow, toCol int) error {
 	if fromRow != toRow && fromCol != toCol {
 		return Error.New("rook can only move in a straight line", nil)
 	}

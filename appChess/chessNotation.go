@@ -2,7 +2,7 @@ package appChess
 
 import "github.com/neutralusername/Systemge/Helpers"
 
-func (app *App) generateAlgebraicNotation(fromRow, fromCol, toRow, toCol int) string {
+func (app *AppChess) generateAlgebraicNotation(fromRow, fromCol, toRow, toCol int) string {
 	notation := ""
 	piece := app.board[fromRow][fromCol]
 	switch piece.(type) {
@@ -34,7 +34,7 @@ func (app *App) generateAlgebraicNotation(fromRow, fromCol, toRow, toCol int) st
 	return notation
 }
 
-func (app *App) getColumnLetter(col int) string {
+func (app *AppChess) getColumnLetter(col int) string {
 	switch col {
 	case 0:
 		return "a"
@@ -56,6 +56,6 @@ func (app *App) getColumnLetter(col int) string {
 	return ""
 }
 
-func (app *App) getRowNumber(row int) string {
+func (app *AppChess) getRowNumber(row int) string {
 	return Helpers.IntToString(8 - row)
 }
