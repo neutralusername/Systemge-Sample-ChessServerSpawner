@@ -264,7 +264,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(websocketClient *WebsocketServe
 		delete(app.websocketIdGames, activeGame.whiteId)
 		delete(app.websocketIdGames, activeGame.blackId)
 		go func() {
-			_, err := SingleRequestServer.SyncRequest("appWebsocketHttp",
+			err := SingleRequestServer.AsyncMessage("appWebsocketHttp",
 				&Config.SingleRequestClient{
 					TcpConnectionConfig: &Config.TcpSystemgeConnection{},
 					TcpClientConfig: &Config.TcpClient{
@@ -279,6 +279,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(websocketClient *WebsocketServe
 				// shouldn't happen in this sample. Should be properly error handled in a real application though
 				panic(Error.New("Error despawning game", err))
 			}
+			app.websocketServer.Multicast([]string{activeGame.blackId, activeGame.whiteId}, Message.NewAsync("endGame", ""))
 		}()
 	}
 	app.mutex.Unlock()
