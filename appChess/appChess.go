@@ -63,7 +63,17 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 				},
 			},
 			SystemgeConnection.SyncMessageHandlers{
-				"move": app.moveMessageHandler,
+				"move": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
+					move, err := dto.UnmarshalMove(message.GetPayload())
+					if err != nil {
+						return "", Error.New("Error unmarshalling move", err)
+					}
+					chessMove, err := app.handleMove(move)
+					if err != nil {
+						return "", err
+					}
+					return Helpers.JsonMarshal(chessMove), nil
+				},
 				"getBoard": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
 					return app.marshalBoard(), nil
 				},
@@ -76,19 +86,6 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 		panic(Error.New("Failed to start singleRequestServer", err))
 	}
 	return app
-}
-
-func (app *AppChess) moveMessageHandler(connection SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {
-	move, err := dto.UnmarshalMove(message.GetPayload())
-	if err != nil {
-		return "", Error.New("Error unmarshalling move", err)
-	}
-	chessMove, err := app.handleMove(move)
-	if err != nil {
-		return "", err
-	}
-	return Helpers.JsonMarshal(chessMove), nil
-
 }
 
 func (app *AppChess) handleMove(move *dto.Move) (*dto.Move, error) {
