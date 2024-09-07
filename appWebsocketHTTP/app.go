@@ -123,7 +123,6 @@ func New() *AppWebsocketHTTP {
 				delete(app.websocketIdGames, activeGame.whiteId)
 				delete(app.websocketIdGames, activeGame.blackId)
 				app.mutex.Unlock()
-				println("t1")
 				err := SingleRequestServer.AsyncMessage("appWebsocketHttp",
 					&Config.SingleRequestClient{
 						TcpConnectionConfig: &Config.TcpSystemgeConnection{
@@ -137,12 +136,10 @@ func New() *AppWebsocketHTTP {
 					},
 					"end", Helpers.Uint16ToString(activeGame.port),
 				)
-				println("t2")
 				if err != nil {
 					// shouldn't happen in this sample. Should be properly error handled in a real application though
 					panic(Error.New("Error despawning game", err))
 				}
-				println("t3")
 				app.websocketServer.Multicast([]string{activeGame.blackId, activeGame.whiteId}, Message.NewAsync("endGame", ""))
 				return nil
 			},
