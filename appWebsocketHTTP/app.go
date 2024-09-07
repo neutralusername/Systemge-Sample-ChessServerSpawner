@@ -92,7 +92,14 @@ func New() *AppWebsocketHTTP {
 					app.mutex.Unlock()
 					return Error.New("Error spawning game", err)
 				}
-				activeGame.port = Helpers.StringToUint16(response)
+				if response.GetTopic() != Message.TOPIC_SUCCESS {
+					app.mutex.Lock()
+					delete(app.websocketIdGames, whiteId)
+					delete(app.websocketIdGames, blackId)
+					app.mutex.Unlock()
+					return Error.New("Error spawning game", nil)
+				}
+				activeGame.port = Helpers.StringToUint16(response.GetPayload())
 
 				response, err = SingleRequestServer.SyncRequest("appWebsocketHttp",
 					&Config.SingleRequestClient{
@@ -109,8 +116,12 @@ func New() *AppWebsocketHTTP {
 					// shouldn't happen in this sample. Should be properly error handled in a real application though
 					panic(Error.New("Error getting board", err))
 				}
+				if response.GetTopic() != Message.TOPIC_SUCCESS {
+					// shouldn't happen in this sample. Should be properly error handled in a real application though
+					panic(Error.New("Error getting board", nil))
+				}
 
-				app.websocketServer.Multicast([]string{blackId, whiteId}, Message.NewAsync("startGame", response))
+				app.websocketServer.Multicast([]string{blackId, whiteId}, Message.NewAsync("startGame", response.GetPayload()))
 				return nil
 			},
 			"endGame": func(websocketClient *WebsocketServer.WebsocketClient, message *Message.Message) error {
@@ -174,7 +185,10 @@ func New() *AppWebsocketHTTP {
 				if err != nil {
 					return err
 				}
-				app.websocketServer.Multicast([]string{activeGame.blackId, activeGame.whiteId}, Message.NewAsync("move", response))
+				if response.GetTopic() != Message.TOPIC_SUCCESS {
+					return Error.New("Error making move", nil)
+				}
+				app.websocketServer.Multicast([]string{activeGame.blackId, activeGame.whiteId}, Message.NewAsync("move", response.GetPayload()))
 				return nil
 			},
 		},
