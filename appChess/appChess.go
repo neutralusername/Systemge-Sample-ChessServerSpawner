@@ -48,7 +48,9 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 				},
 			},
 		},
-		nil, SystemgeConnection.NewConcurrentMessageHandler(
+		nil, nil,
+		nil,
+		SystemgeConnection.NewConcurrentMessageHandler(
 			SystemgeConnection.AsyncMessageHandlers{
 				"end": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) {
 					if err := app.singleRequestServer.Stop(); err != nil {

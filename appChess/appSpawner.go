@@ -58,7 +58,9 @@ func NewAppSpawner() *AppSpawner {
 				},
 			},
 		},
-		nil, SystemgeConnection.NewConcurrentMessageHandler(
+		nil,
+		nil, nil,
+		SystemgeConnection.NewConcurrentMessageHandler(
 			SystemgeConnection.AsyncMessageHandlers{},
 			SystemgeConnection.SyncMessageHandlers{
 				"spawn": func(connection SystemgeConnection.SystemgeConnection, message *Message.Message) (string, error) {

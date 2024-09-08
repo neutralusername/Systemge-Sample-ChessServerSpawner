@@ -46,6 +46,7 @@ func New() *AppWebsocketHTTP {
 				Port: 8443,
 			},
 		},
+		nil, nil,
 		WebsocketServer.MessageHandlers{
 			"startGame": func(websocketClient *WebsocketServer.WebsocketClient, message *Message.Message) error {
 				whiteId := websocketClient.GetId()
@@ -200,6 +201,7 @@ func New() *AppWebsocketHTTP {
 				Port: 8080,
 			},
 		},
+		nil, nil,
 		HTTPServer.Handlers{
 			"/": HTTPServer.SendDirectory("../frontend"),
 		},
