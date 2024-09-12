@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/Helpers"
 	"github.com/neutralusername/Systemge/Message"
@@ -27,25 +28,18 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 	} else {
 		app.board = getStandardStartingPosition()
 	}
+	var dashboardClient *DashboardClientCustomService.Client
 	app.singleRequestServer = SingleRequestServer.NewSingleRequestServer(Helpers.Uint16ToString(port),
 		&Config.SingleRequestServer{
 			SystemgeServerConfig: &Config.SystemgeServer{
-				ListenerConfig: &Config.TcpSystemgeListener{
+				TcpSystemgeListenerConfig: &Config.TcpSystemgeListener{
 					TcpServerConfig: &Config.TcpServer{
 						TlsCertPath: "MyCertificate.crt",
 						TlsKeyPath:  "MyKey.key",
 						Port:        port,
 					},
 				},
-				ConnectionConfig: &Config.TcpSystemgeConnection{},
-			},
-			DashboardClientConfig: &Config.DashboardClient{
-				ConnectionConfig: &Config.TcpSystemgeConnection{},
-				ClientConfig: &Config.TcpClient{
-					Address: "localhost:60000",
-					TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
-					Domain:  "example.com",
-				},
+				TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 			},
 		},
 		nil, nil,
@@ -57,9 +51,11 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 						// shouldn't happen in this sample. Should be properly error handled in a real application though
 						panic(Error.New("Error stopping singleRequestServer", err))
 					}
-					if err := app.singleRequestServer.StopDashboard(); err != nil {
-						// shouldn't happen in this sample. Should be properly error handled in a real application though
-						panic(Error.New("Error stopping dashboard", err))
+					if dashboardClient != nil {
+						if err := dashboardClient.Stop(); err != nil {
+							// shouldn't happen in this sample. Should be properly error handled in a real application though
+							panic(Error.New("Error stopping dashboardClient", err))
+						}
 					}
 					stopFunc()
 				},
@@ -86,6 +82,31 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 	if err := app.singleRequestServer.Start(); err != nil {
 		// shouldn't happen in this sample. Should be properly error handled in a real application though
 		panic(Error.New("Failed to start singleRequestServer", err))
+	}
+
+	dashboardClient = DashboardClientCustomService.New_(Helpers.Uint16ToString(port),
+		&Config.DashboardClient{
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpClientConfig: &Config.TcpClient{
+				Address: "localhost:60000",
+				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
+				Domain:  "example.com",
+			},
+		},
+		app.singleRequestServer.Start,
+		func() error {
+			if err := app.singleRequestServer.Stop(); err != nil {
+				// shouldn't happen in this sample. Should be properly error handled in a real application though
+				panic(Error.New("Error stopping singleRequestServer", err))
+			}
+			return nil
+		},
+		app.singleRequestServer.GetStatus, app.singleRequestServer.GetMetrics,
+		app.singleRequestServer.GetDefaultCommands(),
+	)
+	if err := dashboardClient.Start(); err != nil {
+		// shouldn't happen in this sample. Should be properly error handled in a real application though
+		panic(Error.New("Failed to start dashboardClient", err))
 	}
 	return app
 }

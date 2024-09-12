@@ -2,10 +2,11 @@ package appWebsocketHTTP
 
 import (
 	"SystemgeSampleChessServer/dto"
+	"errors"
 	"sync"
 
 	"github.com/neutralusername/Systemge/Config"
-	"github.com/neutralusername/Systemge/Dashboard"
+	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/HTTPServer"
 	"github.com/neutralusername/Systemge/Helpers"
@@ -77,7 +78,7 @@ func New() *AppWebsocketHTTP {
 
 				response, err := SingleRequestServer.SyncRequest("appWebsocketHttp",
 					&Config.SingleRequestClient{
-						TcpConnectionConfig: &Config.TcpSystemgeConnection{},
+						TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 						TcpClientConfig: &Config.TcpClient{
 							Address: "localhost:60001",
 							TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
@@ -104,7 +105,7 @@ func New() *AppWebsocketHTTP {
 
 				response, err = SingleRequestServer.SyncRequest("appWebsocketHttp",
 					&Config.SingleRequestClient{
-						TcpConnectionConfig: &Config.TcpSystemgeConnection{},
+						TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 						TcpClientConfig: &Config.TcpClient{
 							Address: "localhost:" + Helpers.Uint16ToString(activeGame.port),
 							TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
@@ -137,7 +138,7 @@ func New() *AppWebsocketHTTP {
 				app.mutex.Unlock()
 				err := SingleRequestServer.AsyncMessage("appWebsocketHttp",
 					&Config.SingleRequestClient{
-						TcpConnectionConfig: &Config.TcpSystemgeConnection{
+						TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{
 							TcpReceiveTimeoutMs: 1000,
 						},
 						TcpClientConfig: &Config.TcpClient{
@@ -174,7 +175,7 @@ func New() *AppWebsocketHTTP {
 				}
 				response, err := SingleRequestServer.SyncRequest("appWebsocketHttp",
 					&Config.SingleRequestClient{
-						TcpConnectionConfig: &Config.TcpSystemgeConnection{},
+						TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 						TcpClientConfig: &Config.TcpClient{
 							Address: "localhost:" + Helpers.Uint16ToString(activeGame.port),
 							TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
@@ -187,7 +188,7 @@ func New() *AppWebsocketHTTP {
 					return err
 				}
 				if response.GetTopic() != Message.TOPIC_SUCCESS {
-					return Error.New("Error making move", nil)
+					return Error.New("Error making move", errors.New(response.GetPayload()))
 				}
 				app.websocketServer.Multicast([]string{activeGame.blackId, activeGame.whiteId}, Message.NewAsync("move", response.GetPayload()))
 				return nil
@@ -206,16 +207,16 @@ func New() *AppWebsocketHTTP {
 			"/": HTTPServer.SendDirectory("../frontend"),
 		},
 	)
-	Dashboard.NewClient("appWebsocketHttp_dashboardClient",
+	DashboardClientCustomService.New_("appWebsocketHttp_dashboardClient",
 		&Config.DashboardClient{
-			ConnectionConfig: &Config.TcpSystemgeConnection{},
-			ClientConfig: &Config.TcpClient{
+			TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
+			TcpClientConfig: &Config.TcpClient{
 				Address: "localhost:60000",
 				TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
 				Domain:  "example.com",
 			},
 		},
-		app.start, app.stop, nil, app.getStatus,
+		app.start, app.stop, app.getStatus, app.websocketServer.GetMetrics,
 		nil,
 	).Start()
 	if err := app.start(); err != nil {
@@ -279,7 +280,7 @@ func (app *AppWebsocketHTTP) OnDisconnectHandler(websocketClient *WebsocketServe
 		go func() {
 			err := SingleRequestServer.AsyncMessage("appWebsocketHttp",
 				&Config.SingleRequestClient{
-					TcpConnectionConfig: &Config.TcpSystemgeConnection{},
+					TcpSystemgeConnectionConfig: &Config.TcpSystemgeConnection{},
 					TcpClientConfig: &Config.TcpClient{
 						Address: "localhost:" + Helpers.Uint16ToString(activeGame.port),
 						TlsCert: Helpers.GetFileContent("MyCertificate.crt"),
