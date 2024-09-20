@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/neutralusername/Systemge/Config"
+	"github.com/neutralusername/Systemge/DashboardClient"
 	"github.com/neutralusername/Systemge/DashboardClientCustomService"
 	"github.com/neutralusername/Systemge/Error"
 	"github.com/neutralusername/Systemge/Helpers"
@@ -28,7 +29,7 @@ func NewAppChess(port uint16, stopFunc func()) *AppChess {
 	} else {
 		app.board = getStandardStartingPosition()
 	}
-	var dashboardClient *DashboardClientCustomService.Client
+	var dashboardClient *DashboardClient.Client
 	app.singleRequestServer = SingleRequestServer.NewSingleRequestServer(Helpers.Uint16ToString(port),
 		&Config.SingleRequestServer{
 			SystemgeServerConfig: &Config.SystemgeServer{
